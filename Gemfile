@@ -2,8 +2,7 @@ source "https://rubygems.org"
 
 gemspec
 gem 'rdf',              git: "https://github.com/ruby-rdf/rdf",            branch: "develop"
-#gem 'json-ld',          git: "https://github.com/ruby-rdf/json-ld",        branch: "develop"
-gem 'json-ld', path: '../json-ld'
+gem 'json-ld',          git: "https://github.com/ruby-rdf/json-ld",        branch: "develop"
 
 group :development do
   gem 'rdf-isomorphic', git: "https://github.com/ruby-rdf/rdf-isomorphic", branch: "develop"
