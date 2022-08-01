@@ -13,10 +13,10 @@ module YAML_LD
     # @param  [IO, File, String]       input
     # @param [Proc] documentLoader
     #   The callback of the loader to be used to retrieve remote documents and contexts, and to parse IO objects.
-    #   If specified, it must be used to retrieve remote documents and contexts; otherwise, if not specified, the processor's built-in loader must be used. See {documentLoader} for the method signature.
+    #   If specified, it must be used to retrieve remote documents and contexts; otherwise, if not specified, the processor's built-in loader must be used.
     #   The remote document returned must be parsed if it is YAML.
     # @param  [Hash{Symbol => Object}] options
-    #   any additional options (see `RDF::Reader#initialize` and {JSON::LD::API.initialize})
+    #   any additional options (see `RDF::Reader#initialize` and `JSON::LD::API.initialize`)
     # @yield  [reader] `self`
     # @yieldparam  [RDF::Reader] reader
     # @yieldreturn [void] ignored

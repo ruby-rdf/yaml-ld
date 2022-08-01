@@ -28,7 +28,7 @@ module YAML_LD
     #   The remote document returned must be parsed if it is YAML.
     # @param [Proc] serializer (nil)
     #   A Serializer method used for generating the YAML serialization of the result. If absent, the internal Ruby objects are returned, which can be transformed to YAML externally via `#to_yaml`.
-    #   See {JSON::LD::API.serializer}.
+    #   See {YAML_LD::API.serializer}.
     # @param  [Hash{Symbol => Object}] options
     # @raise [JsonLdError]
     # @yield YAML_LD, base_iri
@@ -65,7 +65,7 @@ module YAML_LD
     #   The base context to use when compacting the input.
     # @param [Proc] serializer (nil)
     #   A Serializer method used for generating the YAML serialization of the result. If absent, the internal Ruby objects are returned, which can be transformed to YAML externally via `#to_yaml`.
-    #   See {JSON::LD::API.serializer}.
+    #   See {YAML_LD::API.serializer}.
     # @param [Boolean] expanded (false) Input is already expanded
     # @param  [Hash{Symbol => Object}] options
     # @option options (see #initialize)
@@ -101,7 +101,7 @@ module YAML_LD
     # @param [Boolean] expanded (false) Input is already expanded
     # @param [Proc] serializer (nil)
     #   A Serializer method used for generating the YAML serialization of the result. If absent, the internal Ruby objects are returned, which can be transformed to YAML externally via `#to_yaml`.
-    #   See {JSON::LD::API.serializer}.
+    #   See {YAML_LD::API.serializer}.
     # @param  [Hash{Symbol => Object}] options
     # @option options (see #initialize)
     # @option options [Boolean] :createAnnotations
@@ -200,7 +200,7 @@ module YAML_LD
     # @param [Boolean] useNativeTypes (false) use native representations
     # @param [Proc] serializer (nil)
     #   A Serializer method used for generating the YAML serialization of the result. If absent, the internal Ruby objects are returned, which can be transformed to YAML externally via `#to_yaml`.
-    #   See {JSON::LD::API.serializer}.
+    #   See {YAML_LD::API.serializer}.
     # @param  [Hash{Symbol => Object}] options
     # @option options (see #initialize)
     # @yield jsonld

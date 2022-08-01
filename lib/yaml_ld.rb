@@ -3,6 +3,7 @@ $:.unshift(File.expand_path("../ld", __FILE__))
 require 'rdf' # @see https://rubygems.org/gems/rdf
 require 'json/ld'
 require 'psych'
+require 'yaml_ld/format'
 
 module YAML_LD
   ##
@@ -24,7 +25,6 @@ module YAML_LD
   # @note Classes and module use `YAML_LD` instead of `YAML_LD`, as `Psych` squats on the `YAML` module.
   #
   # @author [Gregg Kellogg](http://greggkellogg.net/)
-  require 'yaml_ld/format'
 
   autoload :API,                'yaml_ld/api'
   autoload :Reader,             'yaml_ld/reader'

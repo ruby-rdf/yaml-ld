@@ -15,9 +15,17 @@ As the specification is under development, this gem should be considered **exper
 
 YAML-LD documents may use frames or contexts described either using [JSON-LD][] or [YAML-LD][].
 
+* Process YAML-LD source using JSON-LD Context or Frame.
+* Process JSON-LD source using YAML-LD Context or Frame.
+
+### Profiles
+
+The specification defines both basic and extended profiles. This gem is limited to the basic profile at this time.
+
 ## Implementation
 
 The gem largely acts as a front-end for the [JSON-LD gem][] with differences largely in the serialization format only.
+
 ## Dependencies
 * [Ruby](https://ruby-lang.org/) (>= 2.6)
 * [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.2)
