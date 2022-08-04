@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: README
+  
+    &mdash; JSON-LD reader/writer for RDF.rb.
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "README";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'>
+<h1 id="label-YAML-LD+reader-2Fwriter">YAML-LD reader/writer</h1>
+
+<p>Ruby <a href="https://json-ld.github.io/yaml-ld/spec/">YAML-LD</a> reader/writer for RDF.rb</p>
+
+<p><a href="https://rubygems.org/gems/yaml-ld"><img src="https://badge.fury.io/rb/yaml-ld.png"></a> <a href="https://github.com/ruby-rdf/yaml-ld/actions?query=workflow%3ACI"><img src="https://secure.travis-ci.org/ruby-rdf/yaml-ld.png?branch=develop"></a> <a href="https://coveralls.io/github/ruby-rdf/yaml-ld?branch=develop"><img src="https://coveralls.io/repos/ruby-rdf/yaml-ld/badge.svg?branch=develop"></a> <a href="https://gitter.im/gitterHQ/gitter"><img src="https://badges.gitter.im/ruby-rdf.png"></a></p>
+
+<h2 id="label-Features">Features</h2>
+
+<p>YAML_LD parses and serializes <a href="https://json-ld.github.io/yaml-ld/spec/">YAML-LD</a> into <a href="https://www.w3.org/RDF/">RDF</a>.</p>
+
+<p>As the specification is under development, this gem should be considered <strong>experimental</strong> and is subject to change at any time.</p>
+
+<p>YAML-LD documents may use frames or contexts described either using <a href="https://www.w3.org/TR/json-ld11/">JSON-LD</a> or <a href="https://json-ld.github.io/yaml-ld/spec/">YAML-LD</a>.</p>
+<ul><li>
+<p>Process YAML-LD source using JSON-LD Context or Frame.</p>
+</li><li>
+<p>Process JSON-LD source using YAML-LD Context or Frame.</p>
+</li></ul>
+
+<h2 id="label-Examples">Examples</h2>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rubygems</span><span class='tstring_end'>&#39;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yaml\_ld</span><span class='tstring_end'>&#39;</span></span>
+</code></pre>
+
+<h3 id="label-Expand+a+YAML-LD+Document">Expand a YAML-LD Document</h3>
+
+<pre class="code ruby"><code class="ruby">input = StringIO.new(%(
+&quot;@context&quot;:
+  &quot;@vocab&quot;: http://xmlns.com/foaf/0.1/
+name: Gregg Kellogg
+homepage: https://greggkellogg.net
+depiction: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+))
+
+YAML_LD::API.expand(input) # =&gt; %(
+%YAML 1.2
+---
+- http://xmlns.com/foaf/0.1/name:
+  - &quot;@value&quot;: Gregg Kellogg
+  http://xmlns.com/foaf/0.1/homepage:
+  - &quot;@value&quot;: https://greggkellogg.net
+  http://xmlns.com/foaf/0.1/depiction:
+  - &quot;@value&quot;: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+)
+</code></pre>
+
+<h3 id="label-Expand+a+YAML-LD+Document+to+JSON-LD">Expand a YAML-LD Document to JSON-LD</h3>
+
+<pre class="code ruby"><code class="ruby">input = StringIO.new(%(
+&quot;@context&quot;:
+  &quot;@vocab&quot;: http://xmlns.com/foaf/0.1/
+name: Gregg Kellogg
+homepage: https://greggkellogg.net
+depiction: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+))
+
+YAML_LD::API.expand(input, serializer: JSON::LD::API.method(:serializer)) # =&gt; %(
+[
+  {
+    &quot;http://xmlns.com/foaf/0.1/name&quot;: [{ &quot;@value&quot;: &quot;Gregg Kellogg&quot; }],
+    &quot;http://xmlns.com/foaf/0.1/homepage&quot;: [{ &quot;@value&quot;: &quot;https://greggkellogg.net&quot; }],
+    &quot;http://xmlns.com/foaf/0.1/depiction&quot;: [{
+      &quot;@value&quot;: &quot;http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8&quot;
+    }]
+  }
+]
+)
+</code></pre>
+
+<h3 id="label-Expand+a+JSON-LD+Document+to+YAML-LD">Expand a JSON-LD Document to YAML-LD</h3>
+
+<pre class="code ruby"><code class="ruby">input = StringIO.new(%(
+{
+  &quot;@context&quot;: {
+    &quot;@vocab&quot;:&quot;http://xmlns.com/foaf/0.1/&quot;
+  },
+  &quot;name&quot;: &quot;Gregg Kellogg&quot;,
+  &quot;homepage&quot;: &quot;https://greggkellogg.net&quot;,
+  &quot;depiction&quot;: &quot;http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8&quot;
+}
+))
+
+YAML_LD::API.expand(input, content_type: &#39;application/ld+json&#39;) # =&gt; %(
+%YAML 1.2
+---
+- http://xmlns.com/foaf/0.1/name:
+  - &quot;@value&quot;: Gregg Kellogg
+  http://xmlns.com/foaf/0.1/homepage:
+  - &quot;@value&quot;: https://greggkellogg.net
+  http://xmlns.com/foaf/0.1/depiction:
+  - &quot;@value&quot;: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+  )
+</code></pre>
+
+<h2 id="label-Implementation">Implementation</h2>
+
+<p>The gem largely acts as a front-end for the <a href="https://rubygems.org/gems/json-ld">JSON-LD gem</a> with differences largely in the serialization format only.</p>
+
+<p>In addition to the input, both a <code>context</code> and <code>frame</code> may be specified using either JSON-LD or YAML-LD.</p>
+
+<h2 id="label-Dependencies">Dependencies</h2>
+<ul><li>
+<p><a href="https://ruby-lang.org/">Ruby</a> (&gt;= 2.6)</p>
+</li><li>
+<p><a href="https://rubygems.org/gems/json-ld">JSON-LD</a> (&gt;= 3.2.2)</p>
+</li><li>
+<p><a href="https://rubygems.org/gems/psych">Psych</a> (&gt;= 4.0)</p>
+</li><li>
+<p><a href="https://rubygems.org/gems/rdf">RDF.rb</a> (~&gt; 3.2)</p>
+</li></ul>
+
+<h2 id="label-Installation">Installation</h2>
+
+<p>The recommended installation method is via <a href="https://rubygems.org/">RubyGems</a>. To install the latest official release of the <code>JSON-LD</code> gem, do:</p>
+
+<pre class="code ruby"><code class="ruby">% [sudo] gem install yaml-ld
+</code></pre>
+
+<h2 id="label-Download">Download</h2>
+
+<p>To get a local working copy of the development repository, do:</p>
+
+<pre class="code ruby"><code class="ruby">% git clone git://github.com/ruby-rdf/yaml-ld.git
+</code></pre>
+
+<h2 id="label-Mailing+List">Mailing List</h2>
+<ul><li>
+<p><a href="https://lists.w3.org/Archives/Public/public-rdf-ruby">lists.w3.org/Archives/Public/public-rdf-ruby</a>/</p>
+</li></ul>
+
+<h2 id="label-Author">Author</h2>
+<ul><li>
+<p><a href="https://github.com/gkellogg">Gregg Kellogg</a> - <a href="https://greggkellogg.net">greggkellogg.net</a>/</p>
+</li></ul>
+
+<h2 id="label-Contributing">Contributing</h2>
+<ul><li>
+<p>Do your best to adhere to the existing coding conventions and idioms.</p>
+</li><li>
+<p>Don’t use hard tabs, and don’t leave trailing whitespace on any line.</p>
+</li><li>
+<p>Do document every method you add using <a href="https://yardoc.org/">YARD</a> annotations. Read the  <a href="https://rubydoc.info/docs/yard/file/docs/GettingStarted.md">tutorial</a> or just look at the existing code for examples.</p>
+</li><li>
+<p>Don’t touch the <code>json-ld.gemspec</code>, <code>VERSION</code> or <code>AUTHORS</code> files. If you need to  change them, do so on your private branch only.</p>
+</li><li>
+<p>Do feel free to add yourself to the <code>CREDITS</code> file and the corresponding  list in the the <code>README</code>. Alphabetical order applies.</p>
+</li><li>
+<p>Do note that in order for us to merge any non-trivial changes (as a rule  of thumb, additions larger than about 15 lines of code), we need an  explicit <a href="https://unlicense.org/#unlicensing-contributions">public domain dedication</a> on record from you,  which you will be asked to agree to on the first commit to a repo within the organization.  Note that the agreement applies to all repos in the <a href="https://github.com/ruby-rdf/">Ruby RDF</a> organization.</p>
+</li></ul>
+
+<h2 id="label-License">License</h2>
+
+<p>This is free and unencumbered public domain software. For more information, see <a href="https://unlicense.org">unlicense.org</a>/ or the accompanying <a href="file.UNLICENSE.html" title="UNLICENSE">UNLICENSE</a> file.</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Thu Aug  4 22:32:38 2022 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.28 (ruby-3.1.2).
+</div>
+
+    </div>
+  </body>
+</html>
