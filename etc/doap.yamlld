@@ -1,0 +1,63 @@
+---
+"@context":
+  dc: http://purl.org/dc/terms/
+  doap: http://usefulinc.com/ns/doap#
+  foaf: http://xmlns.com/foaf/0.1/
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  xsd: http://www.w3.org/2001/XMLSchema#
+  dc:creator:
+    "@type": "@id"
+  doap:created:
+    "@type": xsd:date
+  doap:homepage:
+    "@type": "@id"
+  doap:bug-database:
+    "@type": "@id"
+  doap:blog:
+    "@type": "@id"
+  doap:developer:
+    "@type": "@id"
+  doap:implements:
+    "@type": "@id"
+  doap:maintainer:
+    "@type": "@id"
+  doap:documenter:
+    "@type": "@id"
+  doap:license:
+    "@type": "@id"
+  doap:description:
+    "@language": en
+  doap:shortdesc:
+    "@language": en
+  foaf:maker:
+    "@type": "@id"
+  foaf:mbox:
+    "@type": "@id"
+  foaf:made:
+    "@type": "@id"
+  rdfs:isDefinedBy:
+    "@type": "@id"
+"@id": https://rubygems.org/gems/yaml-ld
+"@type": doap:Project
+doap:name: YAML_LD
+doap:homepage: https://github.com/ruby-rdf/yaml-ld/
+doap:license: https://unlicense.org/1.0/
+doap:shortdesc: YAML-LD support for Ruby.
+doap:description: YAML_LD parses and serializes YAML-LD by transforming to/from JSON-LD.
+doap:created: '2022-07-19'
+doap:programming-language: Ruby
+doap:implements:
+- https://json-ld.github.io/yaml-ld/spec/
+doap:bug-database: https://github.com/ruby-rdf/yaml-ld/issues
+doap:blog: https://greggkellogg.net/
+doap:developer: https://greggkellogg.net/foaf#me
+doap:maintainer: https://greggkellogg.net/foaf#me
+doap:documenter: https://greggkellogg.net/foaf#me
+foaf:maker: https://greggkellogg.net/foaf#me
+dc:creator:
+  "@id": https://greggkellogg.net/foaf#me
+  "@type": foaf:Person
+  foaf:name: Gregg Kellogg
+  foaf:mbox: mailto:gregg@greggkellogg.net
+  foaf:made: https://rubygems.org/gems/yaml-ld
+  rdfs:isDefinedBy: https://greggkellogg.net/foaf
