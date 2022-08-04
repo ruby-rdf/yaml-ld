@@ -265,7 +265,7 @@ module YAML_LD
           documentUrl: base_uri,
           contentType: content_type,
           contextUrl: context_url))
-      elsif url.to_s.match?(/\.yaml\w*$/) || content_type.match?(%r(application/(\w+\+)*yaml))
+      elsif url.to_s.match?(/\.yaml\w*$/) || content_type.to_s.match?(%r(application/(\w+\+)*yaml))
         # Parse YAML
         block.call(RemoteDocument.new(Psych.load_file(url.to_s, aliases: true),
           documentUrl: base_uri,

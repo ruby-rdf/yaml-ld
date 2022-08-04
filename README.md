@@ -18,18 +18,89 @@ YAML-LD documents may use frames or contexts described either using [JSON-LD][] 
 * Process YAML-LD source using JSON-LD Context or Frame.
 * Process JSON-LD source using YAML-LD Context or Frame.
 
-### Profiles
+## Examples
 
-The specification defines both basic and extended profiles. This gem is limited to the basic profile at this time.
+    require 'rubygems'
+    require 'yaml\_ld'
+
+### Expand a YAML-LD Document
+
+    input = StringIO.new(%(
+    "@context":
+      "@vocab": http://xmlns.com/foaf/0.1/
+    name: Gregg Kellogg
+    homepage: https://greggkellogg.net
+    depiction: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+    ))
+
+    YAML_LD::API.expand(input) # => %(
+    %YAML 1.2
+    ---
+    - http://xmlns.com/foaf/0.1/name:
+      - "@value": Gregg Kellogg
+      http://xmlns.com/foaf/0.1/homepage:
+      - "@value": https://greggkellogg.net
+      http://xmlns.com/foaf/0.1/depiction:
+      - "@value": http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+    )
+
+### Expand a YAML-LD Document to JSON-LD
+
+    input = StringIO.new(%(
+    "@context":
+      "@vocab": http://xmlns.com/foaf/0.1/
+    name: Gregg Kellogg
+    homepage: https://greggkellogg.net
+    depiction: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+    ))
+
+    YAML_LD::API.expand(input, serializer: JSON::LD::API.method(:serializer)) # => %(
+    [
+      {
+        "http://xmlns.com/foaf/0.1/name": [{ "@value": "Gregg Kellogg" }],
+        "http://xmlns.com/foaf/0.1/homepage": [{ "@value": "https://greggkellogg.net" }],
+        "http://xmlns.com/foaf/0.1/depiction": [{
+          "@value": "http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8"
+        }]
+      }
+    ]
+    )
+
+### Expand a JSON-LD Document to YAML-LD
+
+    input = StringIO.new(%(
+    {
+      "@context": {
+        "@vocab":"http://xmlns.com/foaf/0.1/"
+      },
+      "name": "Gregg Kellogg",
+      "homepage": "https://greggkellogg.net",
+      "depiction": "http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8"
+    }
+    ))
+
+    YAML_LD::API.expand(input, content_type: 'application/ld+json') # => %(
+    %YAML 1.2
+    ---
+    - http://xmlns.com/foaf/0.1/name:
+      - "@value": Gregg Kellogg
+      http://xmlns.com/foaf/0.1/homepage:
+      - "@value": https://greggkellogg.net
+      http://xmlns.com/foaf/0.1/depiction:
+      - "@value": http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+      )
 
 ## Implementation
 
 The gem largely acts as a front-end for the [JSON-LD gem][] with differences largely in the serialization format only.
 
+In addition to the input, both a `context` and `frame` may be specified using either JSON-LD or YAML-LD.
+
 ## Dependencies
 * [Ruby](https://ruby-lang.org/) (>= 2.6)
+* [JSON-LD](https://rubygems.org/gems/json-ld) (>= 3.2.2)
+* [Psych](https://rubygems.org/gems/psych) (>= 4.0)
 * [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.2)
-* [JSON](https://rubygems.org/gems/json) (>= 2.6)
 
 ## Installation
 The recommended installation method is via [RubyGems](https://rubygems.org/).
@@ -76,6 +147,4 @@ see <https://unlicense.org/> or the accompanying {file:UNLICENSE} file.
 [RDF.rb]:           https://rubygems.org/gems/rdf
 [JSON-LD gem]:          https://rubygems.org/gems/json-ld
 [JSON-LD]:          https://www.w3.org/TR/json-ld11/ "JSON-LD 1.1"
-[JSON-LD API]:      https://www.w3.org/TR/json-ld11-api/ "JSON-LD 1.1 Processing Algorithms and API"
-[JSON-LD Framing]:  https://www.w3.org/TR/json-ld11-framing/ "JSON-LD 1.1 Framing"
 [YAML-LD]:          https://json-ld.github.io/yaml-ld/spec/

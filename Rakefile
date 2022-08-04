@@ -5,7 +5,7 @@ task default: [ :spec ]
 namespace :gem do
   desc "Build the yaml-ld-#{File.read('VERSION').chomp}.gem file"
   task :build do
-    sh "gem build yaml-ld.gemspec && mv json-ld-#{File.read('VERSION').chomp}.gem pkg/"
+    sh "gem build yaml-ld.gemspec && mv yaml-ld-#{File.read('VERSION').chomp}.gem pkg/"
   end
 
   desc "Release the yaml-ld-#{File.read('VERSION').chomp}.gem file"
