@@ -47,7 +47,7 @@ describe YAML_LD::API do
               options[:expandContext] = @ctx_io if context
               yaml = described_class.expand(@file, **options)
               expect(yaml).to be_a(String)
-              parsed_json = JSON.load_file(expanded)
+              parsed_json = JSON.parse(File.read(expanded))
               expect(yaml).to produce_yamlld(parsed_json, logger)
             end
           end
@@ -66,7 +66,7 @@ describe YAML_LD::API do
             it "compacts" do
               yaml = described_class.compact(@file, @ctx_io, adapter: adapter, logger: logger)
               expect(yaml).to be_a(String)
-              parsed_json = JSON.load_file(compacted)
+              parsed_json = JSON.parse(File.read(compacted))
               expect(yaml).to produce_yamlld(parsed_json, logger)
             end
           end
@@ -76,7 +76,7 @@ describe YAML_LD::API do
               File.open(frame) do |frame_io|
                 yaml = described_class.frame(@file, frame_io, adapter: adapter, logger: logger)
                 expect(yaml).to be_a(String)
-                parsed_json = JSON.load_file(framed)
+                parsed_json = JSON.parse(File.read(framed))
                 expect(yaml).to produce_yamlld(parsed_json, logger)
               end
             end
