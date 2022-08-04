@@ -282,13 +282,13 @@ module YAML_LD
     # Defaults to `MultiJson.dump`
     #
     # @param [Object] object
-    def self.serializer(object)
+    # @param [Array<Object>] args
+    #   other arguments that may be passed for some specific implementation.
+    # @param [Hash<Symbol, Object>] options
+    #   options passed from the invoking context.
+    def self.serializer(object, *args, **options)
       # de-alias any objects to avoid the use of aliases and anchors
-      # FIXME: this should be under an option and can be more performant.
-      # TODO: option to use equivalent objects where found to
-      #       maximize use of aliases in the proper mode.
-      object = JSON.parse(object.to_json)
-      "%YAML 1.2\n" + Psych.dump(object)
+      "%YAML 1.2\n" + Psych.dump(object, **options)
     end
   end
 end
