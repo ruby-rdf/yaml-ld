@@ -51,4 +51,60 @@ describe YAML_LD::Format do
   describe "#to_uri" do
     specify {expect(described_class.to_uri).to eq RDF::URI('http://www.w3.org/ns/formats/YAML-LD')}
   end
+
+  describe ".cli_commands", skip: Gem.win_platform? do
+    require 'rdf/cli'
+    let(:ttl) {File.expand_path("../test-files/test-1-rdf.ttl", __FILE__)}
+    let(:yaml) {File.expand_path("../test-files/test-1-input.yamlld", __FILE__)}
+    let(:json) {File.expand_path("../test-files/test-1-compacted.jsonld", __FILE__)}
+    let(:context) {File.expand_path("../test-files/test-1-context.jsonld", __FILE__)}
+
+    describe "#expand" do
+      it "expands RDF" do
+        expect {RDF::CLI.exec(["expand", ttl], format: :ttl, output_format: :yamlld)}.to write.to(:output)
+      end
+      it "expands JSON" do
+        expect {RDF::CLI.exec(["expand", json], format: :jsonld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+      it "expands YAML" do
+        expect {RDF::CLI.exec(["expand", yaml], format: :yamlld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+    end
+
+    describe "#compact" do
+      it "compacts RDF" do
+        expect {RDF::CLI.exec(["compact", ttl], context: context, format: :ttl, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+      it "compacts JSON" do
+        expect {RDF::CLI.exec(["compact", json], context: context, format: :jsonld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+      it "compacts YAML" do
+        expect {RDF::CLI.exec(["compact", yaml], context: context, format: :yamlld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+    end
+
+    describe "#flatten" do
+      it "flattens RDF" do
+        expect {RDF::CLI.exec(["flatten", ttl], context: context, format: :ttl, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+      it "flattens JSON" do
+        expect {RDF::CLI.exec(["flatten", json], context: context, format: :jsonld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+      it "flattens YAML" do
+        expect {RDF::CLI.exec(["flatten", yaml], context: context, format: :yamlld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+    end
+
+    describe "#frame" do
+      it "frames RDF" do
+        expect {RDF::CLI.exec(["frame", ttl], frame: context, format: :ttl, output_format: :yamlld)}.to write.to(:output)
+      end
+      it "frames JSON" do
+        expect {RDF::CLI.exec(["frame", json], frame: context, format: :jsonld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+      it "frames YAML" do
+        expect {RDF::CLI.exec(["frame", yaml], frame: context, format: :yamlld, output_format: :yamlld, validate: false)}.to write.to(:output)
+      end
+    end
+  end
 end
