@@ -32,6 +32,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency     'json-ld',         '~> 3.2', '>= 3.2.3'
   gem.add_runtime_dependency     'psych',           '~> 4.0'
   gem.add_runtime_dependency     'rdf',             '~> 3.2', '>= 3.2.9'
+  gem.add_runtime_dependency     'rdf-xsd',         '~> 3.2'
   gem.add_development_dependency 'rdf-isomorphic',  '~> 3.2'
   gem.add_development_dependency 'rdf-spec',        '~> 3.2'
   gem.add_development_dependency 'rdf-trig',        '~> 3.2'

@@ -1,0 +1,26 @@
+%YAML 1.2
+%TAG !xsd! http://www.w3.org/2001/XMLSchema%23
+---
+"@context":
+  "@vocab": http://example.com/
+  name: http://xmlns.com/foaf/0.1/name
+  homepage: http://xmlns.com/foaf/0.1/homepage
+  depiction: http://xmlns.com/foaf/0.1/depiction
+name: Gregg Kellogg
+homepage: https://greggkellogg.net/
+depiction: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+yint: 123
+yfloat: 123.45
+ystring: string
+ynull: null
+ybool: true
+ydate: 2022-08-08
+ytime: 12:00:00
+ydateTime: 2022-08-08T12:00:00.000
+integer: !xsd!integer 123
+decimal: !xsd!decimal 123.456
+double: !xsd!double 123.456e78
+bool: !xsd!boolean true
+date: !xsd!date 2022-08-08
+time: !xsd!time 12:00:00.000
+dateTime: !xsd!dateTime 2022-08-08T12:00:00.000

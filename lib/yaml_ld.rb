@@ -28,6 +28,7 @@ module YAML_LD
 
   autoload :API,                'yaml_ld/api'
   autoload :Reader,             'yaml_ld/reader'
+  autoload :Representation,     'yaml_ld/representation'
   autoload :VERSION,            'yaml_ld/version'
   autoload :Writer,             'yaml_ld/writer'
 

@@ -9,7 +9,6 @@ module YAML_LD
   # @see https://www.w3.org/TR/json-ld11-api/#the-application-programming-interface
   # @author [Gregg Kellogg](http://greggkellogg.net/)
   class API < ::JSON::LD::API
-
     # The following constants are used to reduce object allocations
     LINK_REL_CONTEXT = %w(rel http://www.w3.org/ns/yaml-ld#context).freeze
     LINK_REL_ALTERNATE = %w(rel alternate).freeze
@@ -257,7 +256,7 @@ module YAML_LD
         content = case content_type
         when nil, %r(application/(\w+\+)*yaml)
           # Parse YAML
-          Psych.safe_load(url.read, aliases: true)
+          Representation.load_stream(url.read, filename: url.to_s)
         else
           url.read
         end
@@ -267,7 +266,9 @@ module YAML_LD
           contextUrl: context_url))
       elsif url.to_s.match?(/\.yaml\w*$/) || content_type.to_s.match?(%r(application/(\w+\+)*yaml))
         # Parse YAML
-        block.call(RemoteDocument.new(Psych.load_file(url.to_s, aliases: true),
+        content = Representation.load_stream(RDF::Util::File.open_file(url.to_s).read, filename: url.to_s)
+
+        block.call(RemoteDocument.new(content,
           documentUrl: base_uri,
           contentType: content_type,
           contextUrl: context_url))
