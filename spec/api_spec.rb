@@ -10,12 +10,11 @@ describe YAML_LD::API do
     %i(psych).each do |adapter|
       Dir.glob(File.expand_path(File.join(File.dirname(__FILE__), 'test-files/*-input.*'))) do |filename|
         test = File.basename(filename).sub(/-input\..*$/, '')
-        frame = filename.sub(/-input\..*$/, '-frame.jsonld')
-        framed = filename.sub(/-input\..*$/, '-framed.jsonld')
-        compacted = filename.sub(/-input\..*$/, '-compacted.jsonld')
-        context = filename.sub(/-input\..*$/, '-context.jsonld')
-        expanded = filename.sub(/-input\..*$/, '-expanded.jsonld')
-        expanded_yaml = filename.sub(/-input\..*$/, '-expanded.yamlld')
+        frame = filename.sub(/-input\..*$/, '-frame.yamlld')
+        framed = filename.sub(/-input\..*$/, '-framed.yamlld')
+        compacted = filename.sub(/-input\..*$/, '-compacted.yamlld')
+        context = filename.sub(/-input\..*$/, '-context.yamlld')
+        expanded = filename.sub(/-input\..*$/, '-expanded.yamlld')
         ttl = filename.sub(/-input\..*$/, '-rdf.ttl')
 
         context test do
@@ -27,7 +26,7 @@ describe YAML_LD::API do
             when /.jsonld$/
               @file.define_singleton_method(:content_type) {'application/ld+json'}
             end
-            if context
+            if File.exist?(context)
               @ctx_io = File.open(context)
               case context
               when /\.yamlld$/
@@ -36,9 +35,19 @@ describe YAML_LD::API do
                 @ctx_io.define_singleton_method(:content_type) {'application/ld+json'}
               end
             end
+            if File.exist?(frame)
+              @frame_io = File.open(frame)
+              case frame
+              when /\.yamlld$/
+                @frame_io.define_singleton_method(:content_type) {'application/ld+yaml'}
+              when /.jsonld$/
+                @frame_io.define_singleton_method(:content_type) {'application/ld+json'}
+              end
+            end
             example.run
             @file.close
             @ctx_io.close if @ctx_io
+            @frame_io.close if @frame_io
           end
 
           if File.exist?(expanded)
@@ -47,18 +56,7 @@ describe YAML_LD::API do
               options[:expandContext] = @ctx_io if context
               yaml = described_class.expand(@file, **options)
               expect(yaml).to be_a(String)
-              parsed_json = JSON.parse(File.read(expanded))
-              expect(yaml).to produce_yamlld(parsed_json, logger)
-            end
-          end
-
-          if File.exist?(expanded_yaml)
-            it "expands to YAML" do
-              options = {logger: logger, adapter: adapter}
-              options[:expandContext] = @ctx_io if context
-              yaml = described_class.expand(@file, **options)
-              expect(yaml).to be_a(String)
-              expect(yaml).to produce_yamlld(YAML.load_file(expanded_yaml), logger)
+              expect(yaml).to produce_yamlld(File.read(expanded), logger)
             end
           end
 
@@ -66,19 +64,15 @@ describe YAML_LD::API do
             it "compacts" do
               yaml = described_class.compact(@file, @ctx_io, adapter: adapter, logger: logger)
               expect(yaml).to be_a(String)
-              parsed_json = JSON.parse(File.read(compacted))
-              expect(yaml).to produce_yamlld(parsed_json, logger)
+              expect(yaml).to produce_yamlld(File.read(compacted), logger)
             end
           end
 
           if File.exist?(framed) && File.exist?(frame)
             it "frames" do
-              File.open(frame) do |frame_io|
-                yaml = described_class.frame(@file, frame_io, adapter: adapter, logger: logger)
-                expect(yaml).to be_a(String)
-                parsed_json = JSON.parse(File.read(framed))
-                expect(yaml).to produce_yamlld(parsed_json, logger)
-              end
+              yaml = described_class.frame(@file, @frame_io, adapter: adapter, logger: logger)
+              expect(yaml).to be_a(String)
+              expect(yaml).to produce_yamlld(File.read(framed), logger)
             end
           end
 
