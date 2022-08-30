@@ -114,5 +114,57 @@ describe YAML_LD::Representation do
         expect(ir).to be_equivalent_structure expected
       end
     end
+
+    {
+      "!<http://www.w3.org/2001/XMLSchema%23integer> 123": {
+        input: %(!<http://www.w3.org/2001/XMLSchema%23integer> 123),
+        xsd: RDF::Literal("123", datatype: "http://www.w3.org/2001/XMLSchema#integer"),
+        plain: 123
+      },
+      "!<http://www.w3.org/2001/XMLSchema%23decimal> 123.456": {
+        input: %(!<http://www.w3.org/2001/XMLSchema%23decimal> 123.456),
+        xsd: RDF::Literal("123.456", datatype: "http://www.w3.org/2001/XMLSchema#decimal"),
+        plain: 123.456
+      },
+      "!<http://www.w3.org/2001/XMLSchema%23double> 123.456e78": {
+        input: %(!<http://www.w3.org/2001/XMLSchema%23double> 123.456e+78),
+        xsd: RDF::Literal("123.456e+78", datatype: "http://www.w3.org/2001/XMLSchema#double"),
+        plain: 123.456e+78
+      },
+      "!<http://www.w3.org/2001/XMLSchema%23boolean> true": {
+        input: %(!<http://www.w3.org/2001/XMLSchema%23boolean> true),
+        xsd: RDF::Literal("true", datatype: "http://www.w3.org/2001/XMLSchema#boolean"),
+        plain: true
+      },
+      "!<http://www.w3.org/2001/XMLSchema%23date> 2022-08-17": {
+        input: %(!<http://www.w3.org/2001/XMLSchema%23date> "2022-08-17"),
+        xsd: RDF::Literal("2022-08-17", datatype: "http://www.w3.org/2001/XMLSchema#date"),
+        plain: "2022-08-17"
+      },
+      "!<http://www.w3.org/2001/XMLSchema%23time> 12:00:00.000": {
+        input: %(!<http://www.w3.org/2001/XMLSchema%23time> "12:00:00.000"),
+        xsd: RDF::Literal("12:00:00.000", datatype: "http://www.w3.org/2001/XMLSchema#time"),
+        plain: "12:00:00.000"
+      },
+      "!<http://www.w3.org/2001/XMLSchema%23dateTime> 2022-08-17T12:00:00.000": {
+        input: %(!<http://www.w3.org/2001/XMLSchema%23dateTime> "2022-08-17T12:00:00.000"),
+        xsd: RDF::Literal("2022-08-17T12:00:00.000", datatype: "http://www.w3.org/2001/XMLSchema#dateTime"),
+        plain: "2022-08-17T12:00:00.000"
+      },
+    }.each do |name, params|
+      it "#{name} with xsd" do
+        input = params[:input]
+        ir = YAML_LD::Representation.load(input.unindent.strip, xsd: true)
+        expected = params[:xsd]
+        expect(ir).to be_equivalent_structure expected
+      end
+
+      it "#{name} without xsd" do
+        input = params[:input]
+        ir = YAML_LD::Representation.load(input.unindent.strip, xsd: false)
+        expected = params[:plain]
+        expect(ir).to be_equivalent_structure expected
+      end
+    end
   end
 end

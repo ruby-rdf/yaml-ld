@@ -60,14 +60,21 @@ module YAML_LD
     module_function :load
 
     ##
+    # Dump internal representaiton to YAML
+    def dump(ir, **options)
+      visitor = Representation::IRTree.create options
+      visitor << ir
+      visitor.tree.yaml
+    end
+    module_function :dump
+
+    ##
     # Transform a Psych::Nodes::Node to the JSON-LD Internal Representation
     #
     # @param [Psych::Nodes::Node] node
     # @param [Hash{Symbol => Object}] options
-    # @option options [Boolean] :xsd (false)
-    #   Scan nodes with an XMLSchema tag as an `RDF::Literal`
-    # @option options [Boolean] :i18n (false)
-    #   Scan nodes with an I18N tag as an `RDF::Literal` with either datatype or language.
+    # @option options [Boolean] :extendedYAML (false)
+    #   Use the expanded internal representation.
     # @return [Object]
     def as_jsonld_ir(node, **options)
       # Scans scalars for built-in classes
@@ -89,17 +96,16 @@ module YAML_LD
     module_function :as_jsonld_ir
 
     ##
-    # Scans a scalar value to a JSON-LD IR scalar value
+    # Scans a scalar value to a JSON-LD IR scalar value.
+    # Quoted scalar values are not interpreted.
     #
     # @param [Psych::Nodes::Scalar] node
     # @param [Hash{Symbol => Object}] options
-    # @option options [Boolean] :xsd (false)
-    #   Scan nodes with an XMLSchema tag as an `RDF::Literal`
-    # @option options [Boolean] :i18n (false)
-    #   Scan nodes with an I18N tag as an `RDF::Literal` with either datatype or language.
+    # @option options [Boolean] :extendedYAML (false)
+    #   Use the expanded internal representation.
     # @return [Object]
     def scan_scalar(node, **options)
-      @ss ||= self.class.scalar_scanner
+      return node.value if node.quoted # No interpretation
       case node.tag
       when "", NilClass
         # Tokenize, but prohibit certain types
@@ -123,21 +129,12 @@ module YAML_LD
         nil
       when "!bool", "tag:yaml.org,2002:bool"
         node.value.downcase == 'true'
-      when %r(^http://www.w3.org/2001/XMLSchema)
-        tag = node.tag
-        if md = tag.match(%r(^http://www.w3.org/2001/XMLSchema(\w+)$))
-          # Hack until YAML parsers scan %TAG URIs properly
-          tag = "http://www.w3.org/2001/XMLSchema##{md[1]}"
-        end
-        options[:xsd] ?
-          RDF::Literal(node.value, datatype: RDF::URI(tag), validate: true) :
-          node.value
       when %r(^https://www.w3.org/ns/i18n)
         l_d = node.tag[26..-1]
         l_d = l_d[1..-1] if l_d.start_with?('#')
         l, d = l_d.split('_')
-        if !@options[:i18n]
-          node.value
+        if !options[:extendedYAML]
+          (node.style== Psych::Nodes::Scalar::PLAIN ? @ss.tokenize(node.value) : node.value)
         elsif d.nil?
           # Just use language component
           RDF::Literal(node.value, language: l)
@@ -146,7 +143,10 @@ module YAML_LD
           RDF::Literal(node.value, datatype: RDF::URI("https://www.w3.org/ns/i18n##{l_d}"))
         end
       else
-        raise ArgumentError, "Unsupported YAML tag #{node.tag}: #{node.value}"
+        tag = node.tag
+        options[:extendedYAML] ?
+          RDF::Literal(node.value, datatype: RDF::URI(tag), validate: true) :
+          (node.style== Psych::Nodes::Scalar::PLAIN ? @ss.tokenize(node.value) : node.value)
       end
     end
     module_function :scan_scalar
@@ -161,9 +161,20 @@ module YAML_LD
     #   builder.tree.yaml # => "..."
     class IRTree < Psych::Visitors::YAMLTree
       ##
-      # Adds the `:xsd` and `:i18n` options for creating and parsing an XMLSchema tag and `RDF::Literal` scalar values
+      # Adds the `:extendedYAML` options for creating and parsing an XMLSchema tag and `RDF::Literal` scalar values
       def initialize emitter, ss, options
         super
+      end
+
+      ##
+      # Retrive the literals from an object
+      def datatypes(object)
+        case object
+        when Array        then object.inject([]) {|memo, o| memo += datatypes(o)}
+        when Hash         then object.values.inject([]) {|memo, o| memo += datatypes(o)}
+        when RDF::Literal then object.datatype? ? [object.datatype] : []
+        else []
+        end
       end
 
       ##
@@ -182,7 +193,21 @@ module YAML_LD
           version = [1,1]
         end if @options.key? :version
 
-        @emitter.start_document version, [%w(!xsd! http://www.w3.org/2001/XMLSchema#)], false
+        dts = datatypes(object).uniq
+        tags = dts.inject({}) do |memo, dt|
+          # Find the most suitable voabulary, if any
+          if memo.keys.any? {|u| dt.to_s.start_with?(u)}
+            memo
+            # Already have a prefix for this
+          elsif vocab = RDF::Vocabulary.each.to_a.detect {|v| dt.to_s.index(v.to_uri.to_s) == 0}
+            # Index by vocabulary URI
+            memo.merge(vocab.to_uri.to_s => "!#{vocab.__prefix__}!")
+          else
+            memo
+          end
+        end
+        
+        @emitter.start_document version, tags.invert.to_a, false
         accept object
         @emitter.end_document !@emitter.streaming?
       end
@@ -196,11 +221,11 @@ module YAML_LD
         when nil then nil
         when RDF::XSD.string then nil
         when RDF.langString
-          "https://www.w3.org/ns/i18n##{o.language}" if @options[:i18n]
+          "https://www.w3.org/ns/i18n##{o.language}" if @options[:extendedYAML]
         else
           if o.datatype.to_s.start_with?('https://www.w3.org/ns/i18n#')
-            o.datatype.to_s if @options[:i18n]
-          elsif @options[:xsd]
+            o.datatype.to_s if @options[:extendedYAML]
+          elsif @options[:extendedYAML]
             o.datatype.to_s
           else
             nil
