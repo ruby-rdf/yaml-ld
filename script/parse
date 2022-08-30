@@ -12,6 +12,8 @@ require 'yaml_ld'
 require 'getoptlong'
 require 'open-uri'
 require 'ruby-prof'
+require 'amazing_print'
+require 'psych/amazing_print'
 
 def run(input, options)
   if options[:profile]
@@ -40,24 +42,32 @@ def run(input, options)
   if options[:flatten]
     output = YAML_LD::API.flatten(input, options.delete(:context), **options)
     secs = Time.new - start
-    options[:output].puts output.to_yaml
+    options[:output].puts output
     puts "Flattened in #{secs} seconds."
   elsif options[:expand]
     options = options.merge(expandContext: options.delete(:context)) if options.key?(:context)
     output = YAML_LD::API.expand(input, **options)
     secs = Time.new - start
-    options[:output].puts output.to_yaml
+    options[:output].puts output
     puts "Expanded in #{secs} seconds."
   elsif options[:compact]
     output = YAML_LD::API.compact(input, options[:context], **options)
     secs = Time.new - start
-    options[:output].puts output.to_yaml
+    options[:output].puts output
     puts "Compacted in #{secs} seconds."
   elsif options[:frame]
     output = YAML_LD::API.frame(input, options[:frame], **options)
     secs = Time.new - start
-    options[:output].puts output.to_yaml
+    options[:output].puts output
     puts "Framed in #{secs} seconds."
+  elsif options[:translate] && %i(jsonld yamlld).include?(options[:output_format])
+    # Translate between formats
+    ir = YAML_LD::Representation.load(input, **options[:parser_options])
+    options[:output].puts(
+      options[:output_format] == :jsonld ?
+        ir.to_json(JSON::LD::JSON_STATE) :
+        YAML_LD::Representation.dump(ir, version: [1,2], **options[:parser_options])
+      )
   else
     r = reader_class.new(input, **options[:parser_options])
     if options[:output_format] == :none
@@ -108,6 +118,7 @@ OPT_ARGS = [
   ["--execute", "-e", GetoptLong::REQUIRED_ARGUMENT,  "Use option argument as the patch input"],
   ["--expand", GetoptLong::NO_ARGUMENT,               "Expand input"],
   ["--expanded", GetoptLong::NO_ARGUMENT,             "Input is already expanded"],
+  ["--extended", GetoptLong::NO_ARGUMENT,             "Parse/emit extended YAML-LD"],
   ["--flatten", GetoptLong::NO_ARGUMENT,              "Flatten input"],
   ["--format", GetoptLong::REQUIRED_ARGUMENT,         "Output format, for RDF output"],
   ["--frame", GetoptLong::REQUIRED_ARGUMENT,          "Frame input, option value is frame to use"],
@@ -117,6 +128,7 @@ OPT_ARGS = [
   ["--profile", GetoptLong::NO_ARGUMENT,              "Run profiler with output to doc/profiles/"],
   ["--quiet", GetoptLong::NO_ARGUMENT,                "Reduce output"],
   ["--rdfstar", GetoptLong::NO_ARGUMENT,              "RDF-star mode"],
+  ["--translate", GetoptLong::NO_ARGUMENT,            "Translate between JSON and YAML formats"],
   ["--uri", GetoptLong::REQUIRED_ARGUMENT,            "Run with argument value as base"],
   ["--validate", GetoptLong::NO_ARGUMENT,             "Validate input"],
 ]
@@ -146,6 +158,7 @@ opts.each do |opt, arg|
   when '--execute'      then input = arg
   when '--expand'       then options[:expand] = true
   when '--expanded'     then options[:expanded] = true
+  when '--extended'     then parser_options.merge!(extendedYAML: true)
   when '--flatten'      then options[:flatten] = true
   when '--format'       then options[:output_format] = arg.to_sym
   when '--frame'        then options[:frame] = arg
@@ -157,6 +170,7 @@ opts.each do |opt, arg|
     options[:quiet] = true
     logger.level = Logger::FATAL
   when '--rdfstar'      then parser_options[:rdfstar] = true
+  when '--translate'    then options[:translate] = true
   when '--uri'          then parser_options[:base] = arg
   when '--validate'     then parser_options[:validate] = true
   end
