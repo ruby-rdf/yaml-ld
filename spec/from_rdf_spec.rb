@@ -296,7 +296,7 @@ describe YAML_LD::API do
           },
         }.each do |title, params|
           params[:input] = RDF::Graph.new << RDF::Turtle::Reader.new(params[:input])
-          it(title) {do_fromRdf(processingMode: "json-ld-1.1", **params)}
+          it(title) {do_fromRdf(**params)}
         end
       end
     end
@@ -442,7 +442,7 @@ describe YAML_LD::API do
           }
         }.each_pair do |name, params|
           it name do
-            do_fromRdf(params.merge(reader: RDF::Turtle::Reader, rdfDirection: 'i18n-datatype', processingMode: 'json-ld-1.1'))
+            do_fromRdf(params.merge(reader: RDF::Turtle::Reader, rdfDirection: 'i18n-datatype'))
           end
         end
       end
@@ -505,7 +505,7 @@ describe YAML_LD::API do
           }
         }.each_pair do |name, params|
           it name do
-            do_fromRdf(params.merge(reader: RDF::Turtle::Reader, rdfDirection: 'compound-literal', processingMode: 'json-ld-1.1'))
+            do_fromRdf(params.merge(reader: RDF::Turtle::Reader, rdfDirection: 'compound-literal'))
           end
         end
       end

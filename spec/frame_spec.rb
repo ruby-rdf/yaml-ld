@@ -308,8 +308,7 @@ describe YAML_LD::API do
           familyName: Doe
           givenName: John
           name: John Doe
-        ),
-        processingMode: 'json-ld-1.1'
+        )
       },
       "mixed content": {
         frame: %(
@@ -558,7 +557,25 @@ describe YAML_LD::API do
 
     context "omitGraph option" do
       {
-        "Defaults to false in 1.0": {
+        "Defaults to true": {
+          input: %(
+            - http://example.org/prop:
+              - "@value": value
+              http://example.org/foo:
+              - "@value": bar
+          ),
+          frame: %(
+            "@context":
+              "@vocab": http://example.org/
+          ),
+          output: %(
+            "@context":
+              "@vocab": http://example.org/
+            foo: bar
+            prop: value
+          )
+        },
+        "Set with option":  {
           input: %(
             - http://example.org/prop:
               - "@value": value
@@ -576,66 +593,6 @@ describe YAML_LD::API do
             - foo: bar
               prop: value
           ),
-          processingMode: "json-ld-1.0"
-        },
-        "Set with option in 1.0":  {
-          input: %(
-            - http://example.org/prop:
-              - "@value": value
-              http://example.org/foo:
-              - "@value": bar
-          ),
-          frame: %(
-            "@context":
-              "@vocab": http://example.org/
-          ),
-          output: %(
-            "@context":
-              "@vocab": http://example.org/
-            foo: bar
-            prop: value
-          ),
-          processingMode: "json-ld-1.0",
-          omitGraph: true
-        },
-        "Defaults to true in 1.1": {
-          input: %(
-            - http://example.org/prop:
-              - "@value": value
-              http://example.org/foo:
-              - "@value": bar
-          ),
-          frame: %(
-            "@context":
-              "@vocab": http://example.org/
-          ),
-          output: %(
-            "@context":
-              "@vocab": http://example.org/
-            foo: bar
-            prop: value
-          ),
-          processingMode: "json-ld-1.1"
-        },
-        "Set with option in 1.1":  {
-          input: %(
-            - http://example.org/prop:
-              - "@value": value
-              http://example.org/foo:
-              - "@value": bar
-          ),
-          frame: %(
-            "@context":
-              "@vocab": http://example.org/
-          ),
-          output: %(
-            "@context":
-              "@vocab": http://example.org/
-            "@graph":
-            - foo: bar
-              prop: value
-          ),
-          processingMode: "json-ld-1.1",
           omitGraph: false
         },
       }.each do |title, params|
@@ -643,11 +600,9 @@ describe YAML_LD::API do
       end
     end
   end
-
   def do_frame(params)
     begin
       input, frame, output = params[:input], params[:frame], params[:output]
-      params = {processingMode: 'json-ld-1.0'}.merge(params)
       input = StringIO.new(input) if input.is_a?(String)
       frame = StringIO.new(frame) if frame.is_a?(String)
       yld = nil
