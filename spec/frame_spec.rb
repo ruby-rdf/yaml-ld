@@ -22,12 +22,11 @@ describe YAML_LD::API do
           "@id": ex:Sub2
           "@type": ex:Type2
         ),
-        output: %(---
+        output: %(
           "@context":
             ex: http://example.org/
-          "@graph":
-          - "@id": ex:Sub1
-            "@type": ex:Type1
+          "@id": ex:Sub1
+          "@type": ex:Type1
         )
       },
       "wildcard @type match": {
@@ -76,9 +75,8 @@ describe YAML_LD::API do
         output: %(
           "@context":
             ex: http://example.org/
-          "@graph":
-          - "@id": ex:Sub2
-            ex:p: Bar
+          "@id": ex:Sub2
+          ex:p: Bar
         )
       },
       "multiple matches on @type": {
@@ -136,9 +134,8 @@ describe YAML_LD::API do
         output: %(
           "@context":
             ex: http://example.org/
-          "@graph":
-          - "@id": ex:Sub1
-            "@type": ex:Type1
+          "@id": ex:Sub1
+          "@type": ex:Type1
         )
       },
       "multiple @id match": {
@@ -194,10 +191,9 @@ describe YAML_LD::API do
         output: %(
           "@context":
             ex: http://example.org/
-          "@graph":
-          - "@id": ex:Sub1
-            ex:p:
-            ex:q: bar
+          "@id": ex:Sub1
+          ex:p:
+          ex:q: bar
         )
       },
       "match on any property if @requireAll is false": {
@@ -328,11 +324,10 @@ describe YAML_LD::API do
         output: %(
           "@context":
             ex: http://example.org/
-          "@graph":
-          - "@id": ex:Sub1
-            ex:mixed:
-            - "@id": ex:Sub2
-            - literal1
+          "@id": ex:Sub1
+          ex:mixed:
+          - "@id": ex:Sub2
+          - literal1
         )
       },
       "framed list": {
@@ -364,13 +359,12 @@ describe YAML_LD::API do
             list:
               "@id": ex:list
               "@container": "@list"
-          "@graph":
-          - "@id": ex:Sub1
-            "@type": ex:Type1
-            list:
-            - "@id": ex:Sub2
-              "@type": ex:Element
-            - literal1
+          "@id": ex:Sub1
+          "@type": ex:Type1
+          list:
+          - "@id": ex:Sub2
+            "@type": ex:Element
+          - literal1
         )
       },
       "presentation example": {
@@ -409,12 +403,11 @@ describe YAML_LD::API do
             sameAs:
               "@id": http://www.w3.org/2002/07/owl#sameAs
               "@type": "@id"
-          "@graph":
-          - "@id": http://en.wikipedia.org/wiki/Linked_Data
-            primaryTopic:
-              "@id": http://dbpedia.org/resource/Linked_Data
-              "@type": http://dbpedia.org/class/yago/Buzzwords
-              sameAs: http://rdf.freebase.com/ns/m/02r2kb1
+          "@id": http://en.wikipedia.org/wiki/Linked_Data
+          primaryTopic:
+            "@id": http://dbpedia.org/resource/Linked_Data
+            "@type": http://dbpedia.org/class/yago/Buzzwords
+            sameAs: http://rdf.freebase.com/ns/m/02r2kb1
         )
       },
       "library": {
@@ -454,20 +447,19 @@ describe YAML_LD::API do
             xsd: http://www.w3.org/2001/XMLSchema#
             ex:contains:
               "@type": "@id"
-          "@graph":
-          - "@id": http://example.org/library
-            "@type": ex:Library
-            dc:name: Library
+          "@id": http://example.org/library
+          "@type": ex:Library
+          dc:name: Library
+          ex:contains:
+            "@id": http://example.org/library/the-republic
+            "@type": ex:Book
+            dc:creator: Plato
+            dc:title: The Republic
             ex:contains:
-              "@id": http://example.org/library/the-republic
-              "@type": ex:Book
-              dc:creator: Plato
-              dc:title: The Republic
-              ex:contains:
-                "@id": http://example.org/library/the-republic#introduction
-                "@type": ex:Chapter
-                dc:description: An introductory chapter on The Republic.
-                dc:title: The Introduction
+              "@id": http://example.org/library/the-republic#introduction
+              "@type": ex:Chapter
+              dc:description: An introductory chapter on The Republic.
+              dc:title: The Introduction
         )
       }
     }.each do |title, params|
@@ -501,15 +493,14 @@ describe YAML_LD::API do
           output: %(
             "@context":
               ex: http://example.org/
-            "@graph":
-            - "@id": ex:Sub1
-              "@type": ex:Type1
-              "@reverse":
+            "@id": ex:Sub1
+            "@type": ex:Type1
+            "@reverse":
+              ex:includes:
+                "@id": ex:Sub2
+                "@type": ex:Type2
                 ex:includes:
-                  "@id": ex:Sub2
-                  "@type": ex:Type2
-                  ex:includes:
-                    "@id": ex:Sub1
+                  "@id": ex:Sub1
           )
         },
         "embed matched frames with reversed property": {
@@ -538,14 +529,13 @@ describe YAML_LD::API do
               ex: http://example.org/
               excludes:
                 "@reverse": ex:includes
-            "@graph":
-            - "@id": ex:Sub1
-              "@type": ex:Type1
-              excludes:
-                "@id": ex:Sub2
-                "@type": ex:Type2
-                ex:includes:
-                  "@id": ex:Sub1
+            "@id": ex:Sub1
+            "@type": ex:Type1
+            excludes:
+              "@id": ex:Sub2
+              "@type": ex:Type2
+              ex:includes:
+                "@id": ex:Sub1
           )
         },
       }.each do |title, params|

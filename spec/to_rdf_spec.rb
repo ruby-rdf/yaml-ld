@@ -131,14 +131,14 @@ describe YAML_LD::API do
             http://example.com/foo:
             - bar
             - baz
-          }),
+          ),
           %q([ <http://example.com/foo> "bar"^^xsd:string, "baz"^^xsd:string ] .)
         ],
         "IRI" => [
           %q(
             http://example.com/foo:
               "@id": http://example.com/bar
-          }),
+          ),
           %q([ <http://example.com/foo> <http://example.com/bar> ] .)
         ],
         "IRIs" => [
@@ -146,13 +146,13 @@ describe YAML_LD::API do
             http://example.com/foo: 
             - "@id": http://example.com/bar
             - "@id": http://example.com/baz
-          }),
+          ),
           %q([ <http://example.com/foo> <http://example.com/bar>, <http://example.com/baz> ] .)
         ],
-      }.each do |title, (js, ttl)|
+      }.each do |title, (yaml, ttl)|
         it title do
           ttl = "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . #{ttl}"
-          expect(parse(js)).to be_equivalent_graph(ttl, logger: logger, inputDocument: js)
+          expect(parse(yaml)).to be_equivalent_graph(ttl, logger: logger, inputDocument: yaml)
         end
       end
     end
@@ -212,10 +212,10 @@ describe YAML_LD::API do
             <http://greggkellogg.net/foaf#me> <http://purl.org/dc/terms/created> "1957-02-27"^^<http://www.w3.org/2001/XMLSchema#date> .
           )
         ],
-      }.each do |title, (js, ttl)|
+      }.each do |title, (yaml, ttl)|
         it title do
           ttl = "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . #{ttl}"
-          expect(parse(js)).to be_equivalent_graph(ttl, logger: logger, inputDocument: js)
+          expect(parse(yaml)).to be_equivalent_graph(ttl, logger: logger, inputDocument: yaml)
         end
       end
 
@@ -540,7 +540,9 @@ describe YAML_LD::API do
   def run_to_rdf(params)
     input, output = params[:input], params[:output]
     graph = params[:graph] || RDF::Graph.new
-    input = StringIO.new(input) if input.is_a?(String)
+    input = StringIO.new(input).tap do |d|
+      d.define_singleton_method(:content_type) {'application/ld+yaml'}
+    end if input.is_a?(String)
     pending params.fetch(:pending, "test implementation") unless input
     if params[:exception]
       expect {YAML_LD::API.toRdf(input, **params)}.to raise_error(params[:exception])
