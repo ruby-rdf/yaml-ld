@@ -61,12 +61,33 @@ module YAML_LD
 
     ##
     # Dump internal representaiton to YAML
+    #
+    # @option options[Boolean] :extendedYAML
+    #   Allows the use of aliases and encodes RDF::Literals
     def dump(ir, **options)
-      visitor = Representation::IRTree.create options
+      if options[:extendedYAML]
+        options = {
+          aliases: true,
+          permitted_classes: [RDF::Literal]
+        }.merge(options)
+      else
+        # Deep duplicate representation to avoid alias nodes
+        ir = deep_dup(ir)
+      end
+      visitor = Representation::IRTree.create(options)
       visitor << ir
       visitor.tree.yaml
     end
     module_function :dump
+
+    def deep_dup(obj)
+      case obj
+      when Array then obj.map {|e| deep_dup(e)}
+      when Hash then obj.inject({}) {|memo, (k,v)| memo.merge(k => deep_dup(v))}
+      else obj # No need to de-dup
+      end
+    end
+    module_function :deep_dup
 
     ##
     # Transform a Psych::Nodes::Node to the JSON-LD Internal Representation
@@ -159,13 +180,7 @@ module YAML_LD
     #   builder << { :foo => 'bar' }
     #   builder.tree # => #<Psych::Nodes::Stream .. }
     #   builder.tree.yaml # => "..."
-    class IRTree < Psych::Visitors::YAMLTree
-      ##
-      # Adds the `:extendedYAML` options for creating and parsing an XMLSchema tag and `RDF::Literal` scalar values
-      def initialize emitter, ss, options
-        super
-      end
-
+    class IRTree < Psych::Visitors::RestrictedYAMLTree
       ##
       # Retrive the literals from an object
       def datatypes(object)

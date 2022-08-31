@@ -154,14 +154,14 @@ describe YAML_LD::Representation do
     }.each do |name, params|
       it "#{name} with xsd" do
         input = params[:input]
-        ir = YAML_LD::Representation.load(input.unindent.strip, xsd: true)
+        ir = YAML_LD::Representation.load(input.unindent.strip, extendedYAML: true)
         expected = params[:xsd]
         expect(ir).to be_equivalent_structure expected
       end
 
       it "#{name} without xsd" do
         input = params[:input]
-        ir = YAML_LD::Representation.load(input.unindent.strip, xsd: false)
+        ir = YAML_LD::Representation.load(input.unindent.strip, extendedYAML: false)
         expected = params[:plain]
         expect(ir).to be_equivalent_structure expected
       end
