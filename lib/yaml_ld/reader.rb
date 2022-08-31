@@ -24,7 +24,9 @@ module YAML_LD
     def initialize(input = $stdin,
       documentLoader: YAML_LD::API.method(:documentLoader),
       **options, &block)
-      input = StringIO.new(input) if input.is_a?(String)
+      input = StringIO.new(input).tap do |d|
+        d.define_singleton_method(:content_type) {'application/ld+yaml'}
+      end if input.is_a?(String)
       super(input, documentLoader: documentLoader, **options, &block)
     end
 
