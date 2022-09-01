@@ -74,6 +74,7 @@ module YAML_LD
                     **options,
                     &block)
       JSON::LD::API.expand(input,
+                           allowed_content_types: %r(application/(.+\+)?yaml),
                            documentLoader: documentLoader, 
                            extendedRepresentation: options[:extendedYAML],
                            processingMode: 'json-ld-1.1',
@@ -113,6 +114,7 @@ module YAML_LD
                      **options,
                      &block)
       JSON::LD::API.compact(input, context, expanded: expanded,
+                           allowed_content_types: %r(application/(.+\+)?yaml),
                            documentLoader: documentLoader, 
                            extendedRepresentation: options[:extendedYAML],
                            processingMode: 'json-ld-1.1',
@@ -153,6 +155,7 @@ module YAML_LD
                      **options,
                      &block)
       JSON::LD::API.flatten(input, context, expanded: expanded,
+                            allowed_content_types: %r(application/(.+\+)?yaml),
                             documentLoader: documentLoader, 
                             extendedRepresentation: options[:extendedYAML],
                             processingMode: 'json-ld-1.1',
@@ -198,6 +201,7 @@ module YAML_LD
                    **options,
                    &block)
       JSON::LD::API.frame(input, frame, expanded: expanded,
+                          allowed_content_types: %r(application/(.+\+)?yaml),
                           documentLoader: documentLoader, 
                           extendedRepresentation: options[:extendedYAML],
                           processingMode: 'json-ld-1.1',
@@ -226,6 +230,7 @@ module YAML_LD
                    **options,
                    &block)
       JSON::LD::API.toRdf(input, expanded: expanded,
+                          allowed_content_types: %r(application/(.+\+)?yaml),
                           documentLoader: documentLoader, 
                           extendedRepresentation: options[:extendedYAML],
                           processingMode: 'json-ld-1.1',
@@ -261,6 +266,7 @@ module YAML_LD
                      **options,
                      &block)
       JSON::LD::API.fromRdf(input,
+                            allowed_content_types: %r(application/(.+\+)?yaml),
                             documentLoader: documentLoader, 
                             extendedRepresentation: options[:extendedYAML],
                             processingMode: 'json-ld-1.1',
