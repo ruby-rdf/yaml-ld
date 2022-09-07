@@ -180,6 +180,8 @@ module YAML_LD
     #   builder << { :foo => 'bar' }
     #   builder.tree # => #<Psych::Nodes::Stream .. }
     #   builder.tree.yaml # => "..."
+    #
+    # @note Rails 6.0 not compatible with Psych 4.0, which defines `RestrictedYamlTree`.
     class IRTree < (Psych::Visitors.const_defined?(:RestrictedYamlTree) ? Psych::Visitors::RestrictedYAMLTree : Psych::Visitors::YAMLTree)
       ##
       # Retrive the literals from an object
