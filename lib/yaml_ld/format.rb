@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 # frozen_string_literal: true
+require 'json/ld/format'
+
 module YAML_LD
   ##
   # YAML-LD format specification.
@@ -28,6 +30,25 @@ module YAML_LD
     reader { YAML_LD::Reader }
     writer { YAML_LD::Writer }
 
+    # Specify how to execute CLI commands for each supported format. These are added to the `LD_FORMATS` defined for `JSON::LD::Format`
+    # Derived formats (e.g., YAML-LD) define their own entrypoints.
+    LD_FORMATS = {
+      yamlld: {
+        expand: ->(input, **options) {
+          YAML_LD::API.expand(input, validate: false, **options)
+        },
+        compact: ->(input, **options) {
+          YAML_LD::API.compact(input, options[:context], **options)
+        },
+        flatten: ->(input, **options) {
+          YAML_LD::API.flatten(input, options[:context], **options)
+        },
+        frame: ->(input, **options) {
+          YAML_LD::API.frame(input, options[:frame], **options)
+        },
+      }
+    }
+
     ##
     # Sample detection to see if it matches YAML-LD
     #
@@ -54,3 +75,7 @@ module YAML_LD
     end
   end
 end
+
+
+# Load into JSON::LD::Format::LD_FORMATS
+::JSON::LD::Format.const_get(:LD_FORMATS).merge!(::YAML_LD::Format::LD_FORMATS)

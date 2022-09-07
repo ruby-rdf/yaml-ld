@@ -29,9 +29,10 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 2.6'
   gem.requirements          = []
-  gem.add_runtime_dependency     'json-ld',         '~> 3.2', '>= 3.2.2'
-  gem.add_runtime_dependency     'psych',           '~> 4.0'
-  gem.add_runtime_dependency     'rdf',             '~> 3.2'
+  gem.add_runtime_dependency     'json-ld',         '~> 3.2', '>= 3.2.3'
+  gem.add_runtime_dependency     'psych',           '>= 3.3' # Rails 6.0 cannot use psych 4.0
+  gem.add_runtime_dependency     'rdf',             '~> 3.2', '>= 3.2.9'
+  gem.add_runtime_dependency     'rdf-xsd',         '~> 3.2'
   gem.add_development_dependency 'rdf-isomorphic',  '~> 3.2'
   gem.add_development_dependency 'rdf-spec',        '~> 3.2'
   gem.add_development_dependency 'rdf-trig',        '~> 3.2'
@@ -41,6 +42,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rspec',           '~> 3.10'
   gem.add_development_dependency 'rspec-its',       '~> 1.3'
   gem.add_development_dependency 'yard' ,           '~> 0.9'
+  
 
   gem.post_install_message  = nil
 end

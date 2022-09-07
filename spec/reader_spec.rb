@@ -58,7 +58,7 @@ describe YAML_LD::Reader do
           http://example.com/bob/
         "foaf:name":
           Bob
-      }),
+      ),
       leading_comment: %q(---
         # A comment before content
         "@context":

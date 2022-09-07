@@ -1,0 +1,9 @@
+%YAML 1.2
+%TAG ! http://www.w3.org/2001/XMLSchema%23
+---
+"@context":
+  "@vocab": http://xmlns.com/foaf/0.1/
+name: !string Gregg Kellogg
+homepage: https://greggkellogg.net/
+depiction: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+date: !date "2022-08-08"

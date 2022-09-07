@@ -12,6 +12,7 @@ require 'rdf/vocab'
 require 'rdf/spec'
 require 'rdf/spec/matchers'
 require_relative 'matchers'
+require_relative '../lib/psych/amazing_print'
 require 'yaml'
 begin
   require 'simplecov'

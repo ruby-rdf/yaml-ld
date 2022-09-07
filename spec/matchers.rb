@@ -3,8 +3,8 @@ require_relative 'support/extensions'
 
 RSpec::Matchers.define :produce_yamlld do |expected, logger|
   match do |actual|
-    actual = Psych.load(actual, aliases: true) if actual.is_a?(String)
-    expected = Psych.load(expected, aliases: true) if expected.is_a?(String)
+    actual = YAML_LD::Representation.load(actual, aliases: true) if actual.is_a?(String)
+    expected = YAML_LD::Representation.load(expected, aliases: true) if expected.is_a?(String)
     expect(actual).to be_equivalent_structure expected
   end
 

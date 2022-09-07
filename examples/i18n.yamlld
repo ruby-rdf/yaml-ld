@@ -1,0 +1,14 @@
+%YAML 1.2
+%TAG !i18n! https://www.w3.org/ns/i18n%23
+---
+"@context":
+  "@vocab": http://example.com/
+  name: http://xmlns.com/foaf/0.1/name
+  homepage: http://xmlns.com/foaf/0.1/homepage
+  depiction: http://xmlns.com/foaf/0.1/depiction
+name: Gregg Kellogg
+homepage: https://greggkellogg.net/
+depiction: http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8
+lang: !i18n!en-US EN-US
+dir: !i18n!_ltr "Left to Right"
+langdir: !i18n!en-US_ltr "Left to Right US English"

@@ -118,7 +118,7 @@ describe JSON::LD::API do
         output: %(
           - http://example.com/p:
             - "@id": http://example.com/Sub1
-        }])
+        )
       },
     }.each_pair do |title, params|
       it(title) {run_expand params}

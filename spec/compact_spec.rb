@@ -328,7 +328,7 @@ describe YAML_LD::API do
           )
         },
       }.each do |title, params|
-        it(title) {run_compact(processingMode: 'json-ld-1.1', **params)}
+        it(title) {run_compact(**params)}
       end
     end
   end
