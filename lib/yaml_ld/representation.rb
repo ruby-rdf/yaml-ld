@@ -180,7 +180,7 @@ module YAML_LD
     #   builder << { :foo => 'bar' }
     #   builder.tree # => #<Psych::Nodes::Stream .. }
     #   builder.tree.yaml # => "..."
-    class IRTree < Psych::Visitors::RestrictedYAMLTree
+    class IRTree < (Psych::Visitors.const_defined?(:RestrictedYamlTree) ? Psych::Visitors::RestrictedYAMLTree : Psych::Visitors::YAMLTree)
       ##
       # Retrive the literals from an object
       def datatypes(object)
