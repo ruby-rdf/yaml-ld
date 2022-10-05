@@ -39,6 +39,12 @@ module YAML_LD
       end
 
       result.is_a?(Array) && result.empty? ? fallback : result
+    rescue Psych::SyntaxError => e
+      if e.message.match?(/invalid leading UTF-8 octet/)
+        raise YAML_LD::Error::InvalidEncoding, e.message
+      else
+        raise JSON::LD::JsonLdError::LoadingDocumentFailed, e.message
+      end
     end
     module_function :load_stream
 
@@ -103,15 +109,31 @@ module YAML_LD
       case node
       when Psych::Nodes::Stream
         node.children.map {|n| as_jsonld_ir(n, **options)}
-      when Psych::Nodes::Document then as_jsonld_ir(node.children.first, **options)
-      when Psych::Nodes::Sequence then node.children.map {|n| as_jsonld_ir(n, **options)}
+      when Psych::Nodes::Document
+        as_jsonld_ir(node.children.first, named_nodes: {}, **options)
+      when Psych::Nodes::Sequence
+        value = []
+        options[:named_nodes][node.anchor] = value if node.anchor
+        node.children.each {|n| value << as_jsonld_ir(n, **options)}
+        value
       when Psych::Nodes::Mapping
-        node.children.each_slice(2).inject({}) do |memo, (k,v)|
-          memo.merge(as_jsonld_ir(k) => as_jsonld_ir(v, **options))
+        value = {}
+        options[:named_nodes][node.anchor] = value if node.anchor
+        node.children.each_slice(2) do |k, v|
+          key = as_jsonld_ir(k)
+          raise YAML_LD::Error::MappingKeyError, "mapping key #{k} (#{key.inspect}) not a string" unless key.is_a?(String)
+          value[as_jsonld_ir(k)] = as_jsonld_ir(v, **options)
         end
-      when ::Psych::Nodes::Scalar then scan_scalar(node, **options)
+        value
+      when ::Psych::Nodes::Scalar
+        value = scan_scalar(node, **options)
+        options[:named_nodes][node.anchor] = value if node.anchor
+        value
       when ::Psych::Nodes::Alias
-        # FIXME
+       # Aliases only allowed in extendedYAML mode
+       raise YAML_LD::Error::ProfileError, "alias *#{node.anchor} found using JSON profile" unless options[:extendedYAML]
+       raise JSON::LD::JsonLdError::LoadingDocumentFailed, "anchor for *#{node.anchor} not found" unless options[:named_nodes].key?(node.anchor)
+       options[:named_nodes][node.anchor]
       end
     end
     module_function :as_jsonld_ir

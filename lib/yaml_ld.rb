@@ -35,4 +35,11 @@ module YAML_LD
   # YAML-LD profiles
   YAML_LD_NS = "http://www.w3.org/ns/yaml-ld#"
   PROFILES = %w(extended).map {|p| YAML_LD_NS + p}.freeze
+
+  class Error < JSON::LD::JsonLdError
+    class InvalidEncoding < YAML_LD::Error; @code = "invalid encoding"; end
+    class MappingKeyError < YAML_LD::Error; @code = "mapping-key-error"; end
+    class ProfileError < YAML_LD::Error; @code = "profile-error"; end
+  end
+
 end

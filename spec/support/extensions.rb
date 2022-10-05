@@ -42,3 +42,11 @@ class Array
     end
   end
 end
+
+class String
+  def equivalent_yamlld?(other, ordered: false, extendedYAML: false)
+    actual = YAML_LD::Representation.load(self, aliases: true, extendedYAML: extendedYAML)
+    expected = other.is_a?(String) ? YAML_LD::Representation.load(other, aliases: true, extendedYAML: extendedYAML) : other
+    actual.equivalent_structure?(expected, ordered: ordered)
+  end
+end
