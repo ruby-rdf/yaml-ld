@@ -40,10 +40,14 @@ module YAML_LD
 
       result.is_a?(Array) && result.empty? ? fallback : result
     rescue Psych::SyntaxError => e
+      msg = filename ? "file: #{filename} #{e.message}" : e.message
+      if yaml.respond_to?(:read)
+        msg << "Content:\n" + yaml.tap(:rewind).read
+      end
       if e.message.match?(/invalid leading UTF-8 octet/)
-        raise YAML_LD::Error::InvalidEncoding, e.message
+        raise YAML_LD::Error::InvalidEncoding, msg
       else
-        raise JSON::LD::JsonLdError::LoadingDocumentFailed, e.message
+        raise JSON::LD::JsonLdError::LoadingDocumentFailed, msg
       end
     end
     module_function :load_stream
