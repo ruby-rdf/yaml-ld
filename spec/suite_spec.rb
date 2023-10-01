@@ -4,7 +4,7 @@ require_relative 'spec_helper'
 describe YAML_LD do
   describe "test suite" do
     require_relative 'suite_helper'
-    m = Fixtures::SuiteTest::Manifest.open("#{Fixtures::SuiteTest::SUITE}extended-manifest.jsonld")
+    m = Fixtures::SuiteTest::Manifest.open("#{Fixtures::SuiteTest::SUITE}manifest.jsonld")
     describe m.name do
       m.entries.each do |t|
         specify "#{t.property('@id')}: #{t.name} #{t.positiveTest? ? 'unordered' : '(negative test)'}" do

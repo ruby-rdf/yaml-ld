@@ -230,9 +230,7 @@ opts.each do |opt, arg|
   end
 end
 
-manifests = %w(basic extended).map do |man|
-  "#{Fixtures::SuiteTest::SUITE}#{man}-manifest.jsonld"
-end
+manifests = ["#{Fixtures::SuiteTest::SUITE}manifest.jsonld"]
 
 earl_preamble(options) if options[:earl]
 
