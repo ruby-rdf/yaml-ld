@@ -110,6 +110,10 @@ module YAML_LD
     def as_jsonld_ir(node, **options)
       # Scans scalars for built-in classes
       @ss ||= Psych::ScalarScanner.new(Psych::ClassLoader::Restricted.new([], %i()))
+
+      # Record in-scope anchors to check for circular alias references.
+      in_scope_anchors = options[:in_scope_anchors] ||= {}
+
       case node
       when Psych::Nodes::Stream
         node.children.map {|n| as_jsonld_ir(n, **options)}
@@ -117,12 +121,18 @@ module YAML_LD
         as_jsonld_ir(node.children.first, named_nodes: {}, **options)
       when Psych::Nodes::Sequence
         value = []
-        options[:named_nodes][node.anchor] = value if node.anchor
+        if node.anchor
+          options = options.merge(in_scope_anchors: in_scope_anchors.merge(node.anchor => true))
+          options[:named_nodes][node.anchor] = value
+        end
         node.children.each {|n| value << as_jsonld_ir(n, **options)}
         value
       when Psych::Nodes::Mapping
         value = {}
-        options[:named_nodes][node.anchor] = value if node.anchor
+        if node.anchor
+          options = options.merge(in_scope_anchors: in_scope_anchors.merge(node.anchor => true))
+          options[:named_nodes][node.anchor] = value
+        end
         node.children.each_slice(2) do |k, v|
           key = as_jsonld_ir(k)
           raise YAML_LD::Error::MappingKeyError, "mapping key #{k} (#{key.inspect}) not a string" unless key.is_a?(String)
@@ -131,12 +141,14 @@ module YAML_LD
         value
       when ::Psych::Nodes::Scalar
         value = scan_scalar(node, **options)
-        options[:named_nodes][node.anchor] = value if node.anchor
+        if node.anchor
+          options = options.merge(in_scope_anchors: in_scope_anchors.merge(node.anchor => true))
+          options[:named_nodes][node.anchor] = value
+        end
         value
       when ::Psych::Nodes::Alias
-       # Aliases only allowed in extendedYAML mode
-       raise YAML_LD::Error::ProfileError, "alias *#{node.anchor} found using JSON profile" unless options[:extendedYAML]
        raise JSON::LD::JsonLdError::LoadingDocumentFailed, "anchor for *#{node.anchor} not found" unless options[:named_nodes].key?(node.anchor)
+       raise JSON::LD::JsonLdError::LoadingDocumentFailed, "anchor for *#{node.anchor} creates a cycle" if in_scope_anchors.key?(node.anchor)
        options[:named_nodes][node.anchor]
       end
     end
