@@ -35,6 +35,7 @@ def run(input, options)
     puts "output saved in #{output_dir}"
     return
   end
+  options[:extendedYAML] = options[:parser_options][:extendedYAML]
   reader_class = RDF::Reader.for(options[:input_format].to_sym)
   raise "Reader not found for #{options[:input_format]}" unless reader_class
 
@@ -42,23 +43,43 @@ def run(input, options)
   if options[:flatten]
     output = YAML_LD::API.flatten(input, options.delete(:context), **options)
     secs = Time.new - start
-    options[:output].puts output
+    if options[:output_format] == :jsonld
+      ir = YAML_LD::Representation.load(input, **options[:parser_options])
+      options[:output].puts ir.to_json(JSON::LD::JSON_STATE) 
+    else
+      options[:output].puts output
+    end
     puts "Flattened in #{secs} seconds."
   elsif options[:expand]
     options = options.merge(expandContext: options.delete(:context)) if options.key?(:context)
     output = YAML_LD::API.expand(input, **options)
     secs = Time.new - start
-    options[:output].puts output
+    if options[:output_format] == :jsonld
+      ir = YAML_LD::Representation.load(output, **options[:parser_options])
+      options[:output].puts ir.to_json(JSON::LD::JSON_STATE) 
+    else
+      options[:output].puts output
+    end
     puts "Expanded in #{secs} seconds."
   elsif options[:compact]
     output = YAML_LD::API.compact(input, options[:context], **options)
     secs = Time.new - start
-    options[:output].puts output
+    if options[:output_format] == :jsonld
+      ir = YAML_LD::Representation.load(output, **options[:parser_options])
+      options[:output].puts ir.to_json(JSON::LD::JSON_STATE) 
+    else
+      options[:output].puts output
+    end
     puts "Compacted in #{secs} seconds."
   elsif options[:frame]
     output = YAML_LD::API.frame(input, options[:frame], **options)
     secs = Time.new - start
-    options[:output].puts output
+    if options[:output_format] == :jsonld
+      ir = YAML_LD::Representation.load(output, **options[:parser_options])
+      options[:output].puts ir.to_json(JSON::LD::JSON_STATE) 
+    else
+      options[:output].puts output
+    end
     puts "Framed in #{secs} seconds."
   elsif options[:translate] && %i(jsonld yamlld).include?(options[:output_format])
     # Translate between formats
@@ -68,6 +89,9 @@ def run(input, options)
         ir.to_json(JSON::LD::JSON_STATE) :
         YAML_LD::Representation.dump(ir, version: [1,2], **options[:parser_options])
       )
+  elsif options[:inspect]
+    psych_internal = Psych.parse_stream(input)
+    options[:output].puts psych_internal.ai
   else
     r = reader_class.new(input, **options[:parser_options])
     if options[:output_format] == :none
@@ -124,6 +148,7 @@ OPT_ARGS = [
   ["--frame", GetoptLong::REQUIRED_ARGUMENT,          "Frame input, option value is frame to use"],
   ["--help", "-?", GetoptLong::NO_ARGUMENT,           "This message"],
   ["--input-format", GetoptLong::REQUIRED_ARGUMENT,   "Format of input, if not YAML-LD"],
+  ["--inspect", GetoptLong::NO_ARGUMENT,              "Parse and dump IR format"],
   ["--output", "-o", GetoptLong::REQUIRED_ARGUMENT,   "Where to store output (default STDOUT)"],
   ["--profile", GetoptLong::NO_ARGUMENT,              "Run profiler with output to doc/profiles/"],
   ["--quiet", GetoptLong::NO_ARGUMENT,                "Reduce output"],
@@ -164,6 +189,7 @@ opts.each do |opt, arg|
   when '--frame'        then options[:frame] = arg
   when "--help"         then usage
   when '--input-format' then options[:input_format] = arg.to_sym
+  when '--inspect'      then options[:inspect] = true
   when '--output'       then options[:output] = File.open(arg, "w")
   when '--profile'      then options[:profile] = true
   when '--quiet'

@@ -2,8 +2,8 @@
 
 Ruby [YAML-LD][] reader/writer for RDF.rb
 
-[![Gem Version](https://badge.fury.io/rb/yaml-ld.png)](https://rubygems.org/gems/yaml-ld)
-[![Build Status](https://secure.travis-ci.org/ruby-rdf/yaml-ld.png?branch=develop)](https://github.com/ruby-rdf/yaml-ld/actions?query=workflow%3ACI)
+[![Gem Version](https://badge.fury.io/rb/yaml-ld.svg)](https://rubygems.org/gems/yaml-ld)
+[![Build Status](https://github.com/ruby-rdf/yaml-ld/workflows/CI/badge.svg?branch=develop)](https://github.com/ruby-rdf/yaml-ld/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/ruby-rdf/yaml-ld/badge.svg?branch=develop)](https://coveralls.io/github/ruby-rdf/yaml-ld?branch=develop)
 [![Gitter chat](https://badges.gitter.im/ruby-rdf.png)](https://gitter.im/gitterHQ/gitter)
 
@@ -102,11 +102,16 @@ In addition to the input, both a `context` and `frame` may be specified using ei
 * [Psych](https://rubygems.org/gems/psych) (>= 4.0)
 * [RDF.rb](https://rubygems.org/gems/rdf) (~> 3.2)
 
+### Ubuntu limitation
+
+As of October 2023, Ubuntu distributions are running with libyaml 0.2.1, which does not support YAML 1.2. The minimum version needed is libyaml 0.2.5.
+
 ## Installation
 The recommended installation method is via [RubyGems](https://rubygems.org/).
 To install the latest official release of the `JSON-LD` gem, do:
 
     % [sudo] gem install yaml-ld
+
 
 ## Download
 To get a local working copy of the development repository, do:

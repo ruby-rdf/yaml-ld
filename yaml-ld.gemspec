@@ -27,19 +27,19 @@ Gem::Specification.new do |gem|
   gem.require_paths         = %w(lib)
   gem.test_files            = Dir.glob('spec/**/*.rb') + Dir.glob('spec/test-files/*')
 
-  gem.required_ruby_version = '>= 2.6'
+  gem.required_ruby_version = '>= 3.0'
   gem.requirements          = []
-  gem.add_runtime_dependency     'json-ld',         '~> 3.2', '>= 3.2.3'
+  gem.add_runtime_dependency     'json-ld',         '~> 3.3'
   gem.add_runtime_dependency     'psych',           '>= 3.3' # Rails 6.0 cannot use psych 4.0
-  gem.add_runtime_dependency     'rdf',             '~> 3.2', '>= 3.2.9'
-  gem.add_runtime_dependency     'rdf-xsd',         '~> 3.2'
-  gem.add_development_dependency 'rdf-isomorphic',  '~> 3.2'
-  gem.add_development_dependency 'rdf-spec',        '~> 3.2'
-  gem.add_development_dependency 'rdf-trig',        '~> 3.2'
-  gem.add_development_dependency 'rdf-turtle',      '~> 3.2'
-  gem.add_development_dependency 'rdf-vocab',       '~> 3.2'
-  gem.add_development_dependency 'rdf-xsd',         '~> 3.2'
-  gem.add_development_dependency 'rspec',           '~> 3.10'
+  gem.add_runtime_dependency     'rdf',             '~> 3.3'
+  gem.add_runtime_dependency     'rdf-xsd',         '~> 3.3'
+  gem.add_development_dependency 'rdf-isomorphic',  '~> 3.3'
+  gem.add_development_dependency 'rdf-spec',        '~> 3.3'
+  gem.add_development_dependency 'rdf-trig',        '~> 3.3'
+  gem.add_development_dependency 'rdf-turtle',      '~> 3.3'
+  gem.add_development_dependency 'rdf-vocab',       '~> 3.3'
+  gem.add_development_dependency 'rdf-xsd',         '~> 3.3'
+  gem.add_development_dependency 'rspec',           '~> 3.12'
   gem.add_development_dependency 'rspec-its',       '~> 1.3'
   gem.add_development_dependency 'yard' ,           '~> 0.9'
   
