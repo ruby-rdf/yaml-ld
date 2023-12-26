@@ -13,7 +13,7 @@ module YAML_LD
   #   require 'yaml_ld'
   #
   # @example Parsing RDF statements from a YAML-LD file
-  #   JSON::LD::Reader.open("etc/foaf.YAML_LD") do |reader|
+  #   JSON::LD::Reader.open("etc/foaf.yamlld") do |reader|
   #     reader.each_statement do |statement|
   #       puts statement.inspect
   #     end

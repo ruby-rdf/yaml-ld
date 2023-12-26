@@ -7,17 +7,17 @@ module YAML_LD
   # YAML-LD format specification.
   #
   # @example Obtaining an YAML-LD format class
-  #     RDF::Format.for(:YAML_LD)           #=> YAML_LD::Format
-  #     RDF::Format.for("etc/foaf.YAML_LD")
-  #     RDF::Format.for(:file_name         => "etc/foaf.YAML_LD")
-  #     RDF::Format.for(file_extension: "YAML_LD")
+  #     RDF::Format.for(:yamlld)           #=> YAML_LD::Format
+  #     RDF::Format.for("etc/foaf.yamlld")
+  #     RDF::Format.for(:file_name         => "etc/foaf.yamlld")
+  #     RDF::Format.for(file_extension: "yamlld")
   #     RDF::Format.for(:content_type   => "application/ld+yaml")
   #
   # @example Obtaining serialization format MIME types
   #     RDF::Format.content_types      #=> {"application/ld+yaml" => [YAML_LD::Format],
   #
   # @example Obtaining serialization format file extension mappings
-  #     RDF::Format.file_extensions    #=> {:YAML_LD => [YAML_LD::Format] }
+  #     RDF::Format.file_extensions    #=> {:yamlld => [YAML_LD::Format] }
   #
   # @see https://json-ld.github.io/yaml-ld/spec/
   # @see https://json-ld.github.io/yaml/tests/
