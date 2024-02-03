@@ -33,6 +33,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency     'psych',           '>= 3.3' # Rails 6.0 cannot use psych 4.0
   gem.add_runtime_dependency     'rdf',             '~> 3.3'
   gem.add_runtime_dependency     'rdf-xsd',         '~> 3.3'
+  gem.add_runtime_dependency     'rexml',           '~> 3.2'
   gem.add_development_dependency 'getoptlong',      '~> 0.2'
   gem.add_development_dependency 'rdf-isomorphic',  '~> 3.3'
   gem.add_development_dependency 'rdf-spec',        '~> 3.3'

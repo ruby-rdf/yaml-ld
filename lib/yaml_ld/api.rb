@@ -73,6 +73,7 @@ module YAML_LD
                     serializer: self.method(:serializer),
                     **options,
                     &block)
+      JSON::LD::API.add_script_loader('application/ld+yaml', self.method(:htmlLoader))
       JSON::LD::API.expand(input,
                            allowed_content_types: %r(application/(.+\+)?yaml),
                            documentLoader: documentLoader, 
@@ -113,6 +114,7 @@ module YAML_LD
                      serializer: self.method(:serializer),
                      **options,
                      &block)
+      JSON::LD::API.add_script_loader('application/ld+yaml', self.method(:htmlLoader))
       JSON::LD::API.compact(input, context, expanded: expanded,
                            allowed_content_types: %r(application/(.+\+)?yaml),
                            documentLoader: documentLoader, 
@@ -154,6 +156,7 @@ module YAML_LD
                      serializer: self.method(:serializer),
                      **options,
                      &block)
+      JSON::LD::API.add_script_loader('application/ld+yaml', self.method(:htmlLoader))
       JSON::LD::API.flatten(input, context, expanded: expanded,
                             allowed_content_types: %r(application/(.+\+)?yaml),
                             documentLoader: documentLoader, 
@@ -200,6 +203,7 @@ module YAML_LD
                    serializer: self.method(:serializer),
                    **options,
                    &block)
+      JSON::LD::API.add_script_loader('application/ld+yaml', self.method(:htmlLoader))
       JSON::LD::API.frame(input, frame, expanded: expanded,
                           allowed_content_types: %r(application/(.+\+)?yaml),
                           documentLoader: documentLoader, 
@@ -229,6 +233,7 @@ module YAML_LD
                    documentLoader: self.method(:documentLoader),
                    **options,
                    &block)
+      JSON::LD::API.add_script_loader('application/ld+yaml', self.method(:htmlLoader))
       JSON::LD::API.toRdf(input, expanded: expanded,
                           allowed_content_types: %r(application/(.+\+)?yaml),
                           documentLoader: documentLoader, 
@@ -331,6 +336,16 @@ module YAML_LD
           contextUrl: context_url))
       else
         RDF::Util::File.open_file(url, **options, &block)
+      end
+    end
+
+    ##
+    # Extracts a single YAML script, or a stream of YAML scripts from HTML script tags.
+    def self.htmlLoader(content, url:, extractAllScripts: false, **options)
+      if extractAllScripts
+        Representation.load_stream(content.unindent, filename: url.to_s, **options)
+      else
+        Representation.load(content, filename: url.to_s, **options)
       end
     end
 

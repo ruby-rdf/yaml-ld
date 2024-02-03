@@ -406,5 +406,105 @@ module Fixtures
       "don't raise error"
     end
     module_function :documentLoader
+
+    ##
+    # Load one or more script tags from an HTML source.
+    # Unescapes and uncomments input, returns the internal representation
+    # Yields document base
+    # @param [String] input
+    # @param [String] url   Original URL
+    # @param [:nokogiri, :rexml] library (nil)
+    # @param [Boolean] extractAllScripts (false)
+    # @param [Boolean] profile (nil) Optional priortized profile when loading a single script by type.
+    # @param [Hash{Symbol => Object}] options
+    def self.load_html(input, url:,
+                       library: nil,
+                       extractAllScripts: false,
+                       profile: nil,
+                       **options)
+
+      if input.is_a?(String)
+        library ||= begin
+          require 'nokogiri'
+          :nokogiri
+        rescue LoadError
+          :rexml
+        end
+        require "json/ld/html/#{library}"
+
+        # Parse HTML using the appropriate library
+        implementation = case library
+        when :nokogiri then Nokogiri
+        when :rexml then REXML
+        end
+        extend(implementation)
+
+        input = begin
+          send("initialize_html_#{library}".to_sym, input, **options)
+        rescue StandardError
+          raise JSON::LD::JsonLdError::LoadingDocumentFailed, "Malformed HTML document: #{$ERROR_INFO.message}"
+        end
+
+        # Potentially update options[:base]
+        if (html_base = input.at_xpath("/html/head/base/@href"))
+          base = RDF::URI(url) if url
+          html_base = RDF::URI(html_base)
+          html_base = base.join(html_base) if base
+          yield html_base
+        end
+      end
+
+      url = RDF::URI.parse(url)
+      if url.fragment
+        id = CGI.unescape(url.fragment)
+        # Find script with an ID based on that fragment.
+        element = input.at_xpath("//script[@id='#{id}']")
+        raise JSON::LD::JsonLdError::LoadingDocumentFailed, "No script tag found with id=#{id}" unless element
+
+        unless element.attributes['type'].to_s.start_with?('application/ld+json')
+          raise JSON::LD::JsonLdError::LoadingDocumentFailed,
+            "Script tag has type=#{element.attributes['type']}"
+        end
+
+        content = element.inner_html
+        validate_input(content, url: url) if options[:validate]
+        mj_opts = options.keep_if { |k, v| k != :adapter || MUTLI_JSON_ADAPTERS.include?(v) }
+        MultiJson.load(content, **mj_opts)
+      elsif extractAllScripts
+        res = []
+        elements = if profile
+          es = input.xpath("//script[starts-with(@type, 'application/ld+json;profile=#{profile}')]")
+          # If no profile script, just take a single script without profile
+          es = [input.at_xpath("//script[starts-with(@type, 'application/ld+json')]")].compact if es.empty?
+          es
+        else
+          input.xpath("//script[starts-with(@type, 'application/ld+json')]")
+        end
+        elements.each do |element|
+          content = element.inner_html
+          validate_input(content, url: url) if options[:validate]
+          mj_opts = options.keep_if { |k, v| k != :adapter || MUTLI_JSON_ADAPTERS.include?(v) }
+          r = MultiJson.load(content, **mj_opts)
+          if r.is_a?(Hash)
+            res << r
+          elsif r.is_a?(Array)
+            res.concat(r)
+          end
+        end
+        res
+      else
+        # Find the first script with type application/ld+json.
+        element = input.at_xpath("//script[starts-with(@type, 'application/ld+json;profile=#{profile}')]") if profile
+        element ||= input.at_xpath("//script[starts-with(@type, 'application/ld+json')]")
+        raise JSON::LD::JsonLdError::LoadingDocumentFailed, "No script tag found" unless element
+
+        content = element.inner_html
+        validate_input(content, url: url) if options[:validate]
+        mj_opts = options.keep_if { |k, v| k != :adapter || MUTLI_JSON_ADAPTERS.include?(v) }
+        MultiJson.load(content, **mj_opts)
+      end
+    rescue MultiJson::ParseError => e
+      raise JSON::LD::JsonLdError::InvalidScriptElement, e.message
+    end
   end
 end

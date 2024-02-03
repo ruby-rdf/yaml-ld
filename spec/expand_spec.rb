@@ -476,6 +476,169 @@ describe JSON::LD::API do
       end
     end
 
+    context "html" do
+      %w[REXML].each do |impl|
+        next unless Module.constants.map(&:to_s).include?(impl)
+
+        context impl do
+          let(:library) { impl.downcase.to_s.to_sym }
+
+          {
+            'Expands embedded YAML-LD script element': {
+              input: %(
+              <html>
+                <head>
+                  <script type="application/ld+yaml">
+                    "@context":
+                      "foo":
+                        "@id": "http://example.com/foo"
+                        "@container": "@list"
+                    "foo":
+                      "@value": "bar"
+                  </script>
+                </head>
+              </html>),
+              output: %([{
+                "http://example.com/foo": [{"@list": [{"@value": "bar"}]}]
+              }])
+            },
+            'Expands first script element': {
+              input: %(
+              <html>
+                <head>
+                  <script type="application/ld+yaml">
+                  "@context":
+                    foo:
+                      "@id": http://example.com/foo
+                      "@container": "@list"
+                  foo:
+                  - "@value": bar
+                  </script>
+                  <script type="application/ld+yaml">
+                  "@context":
+                    ex: http://example.com/
+                  "@graph":
+                  - ex:foo:
+                      "@value": foo
+                  - ex:bar:
+                      "@value": bar
+                  </script>
+                </head>
+              </html>),
+              output: %([{
+                "http://example.com/foo": [{"@list": [{"@value": "bar"}]}]
+              }])
+            },
+            'Expands targeted script element': {
+              input: %(
+              <html>
+                <head>
+                  <script id="first" type="application/ld+json">
+                  {
+                    "@context": {
+                      "foo": {"@id": "http://example.com/foo", "@container": "@list"}
+                    },
+                    "foo": [{"@value": "bar"}]
+                  }
+                  </script>
+                  <script id="second" type="application/ld+json">
+                  {
+                    "@context": {"ex": "http://example.com/"},
+                    "@graph": [
+                      {"ex:foo": {"@value": "foo"}},
+                      {"ex:bar": {"@value": "bar"}}
+                    ]
+                  }
+                  </script>
+                </head>
+              </html>),
+              output: %([
+                {"http://example.com/foo": [{"@value": "foo"}]},
+                {"http://example.com/bar": [{"@value": "bar"}]}
+              ]),
+              base: "http://example.org/doc#second"
+            },
+            'Expands all script elements with extractAllScripts option': {
+              input: %(
+              <html>
+                <head>
+                  <script type="application/ld+yaml">
+                  "@context":
+                    foo:
+                      "@id": http://example.com/foo
+                      "@container": "@list"
+                  foo:
+                  - "@value": bar
+                  </script>
+                  <script type="application/ld+yaml">
+                  "@context":
+                    ex: http://example.com/
+                  "@graph":
+                  - ex:foo:
+                      "@value": foo
+                  - ex:bar:
+                      "@value": bar
+                  </script>
+                </head>
+              </html>),
+              output: %([
+                {"http://example.com/foo": [{"@list": [{"@value": "bar"}]}]},
+                {
+                  "@graph": [{
+                    "http://example.com/foo": [{"@value": "foo"}]
+                  }, {
+                    "http://example.com/bar": [{"@value": "bar"}]
+                  }]
+                }
+              ]),
+              extractAllScripts: true
+            },
+            'Expands all script elements with extractAllScripts option (doc stream)': {
+              input: %(
+              <html>
+                <head>
+                  <script type="application/ld+yaml">
+                  "@context":
+                    foo:
+                      "@id": http://example.com/foo
+                      "@container": "@list"
+                  foo:
+                  - "@value": bar
+                  ---
+                  "@context":
+                    ex: http://example.com/
+                  "@graph":
+                  - ex:foo:
+                      "@value": foo
+                  - ex:bar:
+                      "@value": bar
+                  </script>
+                </head>
+              </html>),
+              output: %([
+                {"http://example.com/foo": [{"@list": [{"@value": "bar"}]}]},
+                {
+                  "@graph": [{
+                    "http://example.com/foo": [{"@value": "foo"}]
+                  }, {
+                    "http://example.com/bar": [{"@value": "bar"}]
+                  }]
+                }
+              ]),
+              extractAllScripts: true
+            },
+          }.each do |title, params|
+            it(title) do
+              skip "rexml" if params[:not] == library
+              params = params.merge(input: StringIO.new(params[:input]))
+              params[:input].send(:define_singleton_method, :content_type) { "text/html" }
+              run_expand params.merge(validate: true, library: library)
+            end
+          end
+        end
+      end
+    end
+
     context "JSON-LD-star" do
       {
         "node with embedded subject without rdfstar option": {
