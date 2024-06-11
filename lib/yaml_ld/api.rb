@@ -326,9 +326,11 @@ module YAML_LD
           contextUrl: context_url))
       elsif url.to_s.match?(/\.yaml\w*$/) || content_type.to_s.match?(%r(application/(\w+\+)*yaml))
         # Parse YAML
-        content = Representation.load(RDF::Util::File.open_file(url.to_s).read,
-                                             filename: url.to_s,
-                                             **options)
+        doc = RDF::Util::File.open_file(url.to_s)
+        base_uri ||= doc.base_uri
+        content = Representation.load(doc.read,
+                                      filename: url.to_s,
+                                      **options)
 
         block.call(RemoteDocument.new(content,
           documentUrl: base_uri,
