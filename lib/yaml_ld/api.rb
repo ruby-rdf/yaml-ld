@@ -43,6 +43,7 @@ module YAML_LD
     #   Use the expanded internal representation.
     # @option options [Boolean] :extractAllScripts
     #   If set, when given an HTML input without a fragment identifier, extracts all `script` elements with type `application/ld+json` into an array during expansion.
+    #   When given a YAML stream, extracts all documents in that stream into an array.
     # @option options [Boolean, String, RDF::URI] :flatten
     #   If set to a value that is not `false`, the JSON-LD processor must modify the output of the Compaction Algorithm or the Expansion Algorithm by coalescing all properties associated with each subject via the Flattening Algorithm. The value of `flatten must` be either an _IRI_ value representing the name of the graph to flatten, or `true`. If the value is `true`, then the first graph encountered in the input document is selected and flattened.
     # @option options [String] :language
@@ -287,6 +288,7 @@ module YAML_LD
     # @param [RDF::URI, String] url
     # @param [Boolean] extractAllScripts
     #   If set to `true`, when extracting JSON-LD script elements from HTML, unless a specific fragment identifier is targeted, extracts all encountered JSON-LD script elements using an array form, if necessary.
+    #   When given a YAML stream, extracts all documents in that stream into an array.
     # @param [String] profile
     #   When the resulting `contentType` is `text/html` or `application/xhtml+xml`, this option determines the profile to use for selecting a JSON-LD script elements.
     # @param [String] requestProfile
@@ -316,7 +318,11 @@ module YAML_LD
         content = case content_type
         when nil, %r(application/(\w+\+)*yaml)
           # Parse YAML
-          Representation.load(url.read, filename: url.to_s, **options)
+          if extractAllScripts
+            Representation.load_stream(url.read, filename: url.to_s, **options)
+          else
+            Representation.load(url.read, filename: url.to_s, **options)
+          end
         else
           url.read
         end
@@ -328,9 +334,11 @@ module YAML_LD
         # Parse YAML
         doc = RDF::Util::File.open_file(url.to_s)
         base_uri ||= doc.base_uri
-        content = Representation.load(doc.read,
-                                      filename: url.to_s,
-                                      **options)
+        content = if extractAllScripts
+          Representation.load_stream(doc.read, filename: url.to_s, **options)
+        else
+          Representation.load(doc.read, filename: url.to_s, **options)
+        end
 
         block.call(RemoteDocument.new(content,
           documentUrl: base_uri,
