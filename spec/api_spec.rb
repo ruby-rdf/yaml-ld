@@ -77,7 +77,12 @@ describe YAML_LD::API do
           end
 
           it "toRdf" do
-            expect(RDF::Repository.load(filename, format: :yamlld, adapter: adapter, logger: logger)).to be_equivalent_graph(RDF::Repository.load(ttl), logger: logger)
+            expect(RDF::Repository.load(filename,
+                                        format: :yamlld,
+                                        extractAllScripts: false,
+                                        adapter: adapter,
+                                        logger: logger)).
+              to be_equivalent_graph(RDF::Repository.load(ttl), logger: logger)
           end if File.exist?(ttl)
         end
       end

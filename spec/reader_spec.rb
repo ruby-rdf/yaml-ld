@@ -14,6 +14,7 @@ describe YAML_LD::Reader do
     let(:reader_input) {File.read(doap)}
     let(:reader) {YAML_LD::Reader.new(reader_input)}
     let(:reader_count) {doap_count}
+    let(:reader_invalid_input) {'@!!invalid input??'}
   end
 
   describe ".for" do

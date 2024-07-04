@@ -92,7 +92,7 @@ describe JSON::LD::API do
               "@type": xsd:integer
             ex:hasReference:
               "@type": "@id"
-          "@graph":
+          "@included":
           - "@id": http://example.org/ParisFact1
             "@type": rdf:Graph
             "@graph":
