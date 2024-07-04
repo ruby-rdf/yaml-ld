@@ -41,6 +41,7 @@ def compare_results(tc, result, expected)
         "failed"
       elsif result.to_s.include?('@context')
         if expected.is_a?(String) && expected.include?(' ')
+          # Parse expected and result into the internal representation.
           expected = tc.options[:extendedYAML] ?
             YAML_LD::Representation.load_stream(expected) :
             YAML_LD::Representation.load(expected)
@@ -82,7 +83,7 @@ def run_tc(man, tc, options)
 
     result = case tc.testType
     when 'jld:CompactTest'
-      output = YAML_LD::API.compact(tc.input_loc, tc.context_json['@context'], validate: true, **tc.options)
+      output = YAML_LD::API.compact(tc.input_loc, tc.context_ir['@context'], validate: true, **tc.options)
       expected = tc.evaluationTest? && tc.positiveTest? ? tc.expect : nnil
       compare_results(tc, output, expected)
     when 'jld:ExpandTest'
@@ -91,7 +92,7 @@ def run_tc(man, tc, options)
       expected = tc.evaluationTest? && tc.positiveTest? ? tc.expect : nnil
       compare_results(tc, output, expected)
     when 'jld:FlattenTest'
-      output = YAML_LD::API.flatten(tc.input_loc, (tc.context_json['@context'] if tc.context_loc), validate: true, **tc.options)
+      output = YAML_LD::API.flatten(tc.input_loc, (tc.context_ir['@context'] if tc.context_loc), validate: true, **tc.options)
       expected = tc.evaluationTest? && tc.positiveTest? ? tc.expect : nnil
       compare_results(tc, output, expected)
     when 'jld:FrameTest'

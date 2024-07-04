@@ -167,7 +167,8 @@ module Fixtures
           property(m) && manifest_url.join(file).to_s
         end
 
-        define_method("#{m}_json".to_sym) do
+        # Internal representations of accessor methods
+        define_method("#{m}_ir".to_sym) do
           YAML_LD::Representation.load(self.send(m)) if property(m)
         end
       end
@@ -215,9 +216,9 @@ module Fixtures
             when "jld:ExpandTest"
               YAML_LD::API.expand(input_loc, logger: logger, **options)
             when "jld:CompactTest"
-              YAML_LD::API.compact(input_loc, context_json['@context'], logger: logger, **options)
+              YAML_LD::API.compact(input_loc, context_ir['@context'], logger: logger, **options)
             when "jld:FlattenTest"
-              YAML_LD::API.flatten(input_loc, (context_json['@context'] if context_loc), logger: logger, **options)
+              YAML_LD::API.flatten(input_loc, (context_ir['@context'] if context_loc), logger: logger, **options)
             when "jld:FrameTest"
               YAML_LD::API.frame(input_loc, frame_loc, logger: logger, **options)
             when "jld:FromRDFTest"
@@ -241,7 +242,7 @@ module Fixtures
               logger.info "nq: #{repo.map(&:to_nquads)}"
               repo
             when "jld:HttpTest"
-              res = input_json
+              res = input_ir
               rspec_example.instance_eval do
                 # use the parsed input file as @result for Rack Test application
                 @results = res
@@ -308,7 +309,7 @@ module Fixtures
                 when "jld:ExpandTest"
                   JSON::LD::API.expand(t.input_loc, logger: logger, **options)
                 when "jld:CompactTest"
-                  JSON::LD::API.compact(t.input_loc, t.context_json['@context'], logger: logger, **options)
+                  JSON::LD::API.compact(t.input_loc, t.context_ir['@context'], logger: logger, **options)
                 when "jld:FlattenTest"
                   JSON::LD::API.flatten(t.input_loc, t.context_loc, logger: logger, **options)
                 when "jld:FrameTest"
@@ -320,7 +321,7 @@ module Fixtures
                 when "jld:HttpTest"
                   rspec_example.instance_eval do
                     # use the parsed input file as @result for Rack Test application
-                    @results = t.input_json
+                    @results = t.input_ir
                     get "/", {}, "HTTP_ACCEPT" => options.fetch(:httpAccept, "")
                     expect(last_response.status).to eq t.property('expect')
                     expect(last_response.content_type).to eq options.fetch(:contentType, "")
