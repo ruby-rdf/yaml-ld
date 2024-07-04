@@ -40,6 +40,14 @@ def compare_results(tc, result, expected)
       if !result.equivalent_yamlld?(expected, extendedYAML: tc.options[:extendedYAML])
         "failed"
       elsif result.to_s.include?('@context')
+        if expected.is_a?(String) && expected.include?(' ')
+          expected = tc.options[:extendedYAML] ?
+            YAML_LD::Representation.load_stream(expected) :
+            YAML_LD::Representation.load(expected)
+          result = tc.options[:extendedYAML] ?
+            YAML_LD::Representation.load_stream(result) :
+            YAML_LD::Representation.load(result)
+        end
         exp_expected = YAML_LD::API.expand(expected, **tc.options.merge(logger: false))
         exp_result = YAML_LD::API.expand(result, **tc.options.merge(logger: false))
         exp_result.equivalent_yamlld?(exp_expected, extendedYAML: tc.options[:extendedYAML]) ? "passed" : "failed"

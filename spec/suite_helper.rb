@@ -168,7 +168,7 @@ module Fixtures
         end
 
         define_method("#{m}_json".to_sym) do
-          JSON.parse(self.send(m)) if property(m)
+          YAML_LD::Representation.load(self.send(m)) if property(m)
         end
       end
 
